@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff4d6d">
+    <meta name="google-site-verification" content="google6471dee0a647ffc0" />
+    <title>CONNECTLY | Complete Dating App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ========== FULL ORIGINAL CSS (kept) ========== */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Poppins', sans-serif; }
+        body { min-height: 100vh; background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format') center/cover no-repeat fixed; }
+        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(4px); z-index: -1; }
+        .glass-card { background: rgba(255, 255, 255, 0.18); backdrop-filter: blur(14px); border-radius: 32px; border: 1px solid rgba(255, 255, 255, 0.35); box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); transition: transform 0.2s, box-shadow 0.2s; }
+        .gradient-btn { background: linear-gradient(135deg, #c5e99b 0%, #56ab2f 100%); border: none; color: #1e2a1e; font-weight: 700; padding: 14px 20px; border-radius: 60px; width: 100%; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s; }
+        .gradient-btn:hover { transform: scale(0.98); }
+        .google-btn { background: rgba(255, 255, 255, 0.2); border: 1px solid rgba(255, 255, 255, 0.4); color: white; margin-top: 12px; }
+        .google-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .auth-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .auth-card { width: 100%; max-width: 440px; padding: 2rem 1.8rem; text-align: center; }
+        .logo-icon { font-size: 3.2rem; color: #ffdf7e; }
+        .logo-area h1 { font-size: 2.3rem; background: linear-gradient(135deg, #fff, #f9e45b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .input-group { position: relative; margin: 1.2rem 0; }
+        .input-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-50%); color: rgba(255,255,240,0.9); }
+        .input-group input, .input-group select { width: 100%; padding: 14px 20px 14px 48px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 60px; font-size: 1rem; color: white; }
+        .toggle-pwd { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); cursor: pointer; color: white; }
+        .switch-auth a { color: #ffec99; text-decoration: none; }
+        .divider { display: flex; align-items: center; text-align: center; color: rgba(255,255,255,0.6); margin: 16px 0; }
+        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid rgba(255,255,255,0.3); }
+        .divider::before { margin-right: 12px; }
+        .divider::after { margin-left: 12px; }
+        .app-main { display: none; max-width: 550px; margin: 0 auto; padding: 20px 12px 80px; min-height: 100vh; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(20,20,30,0.85); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.2); display: flex; justify-content: space-around; align-items: center; padding: 12px 20px 24px; z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: #ccc; font-size: 0.7rem; cursor: pointer; transition: 0.2s; padding: 4px 12px; border-radius: 30px; }
+        .nav-item i { font-size: 1.6rem; }
+        .nav-item.active { color: #f5b042; text-shadow: 0 0 8px #ffb347; background: rgba(255,255,255,0.1); }
+        .view { display: none; animation: fade 0.25s ease; }
+        .active-view { display: block; }
+        @keyframes fade { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: translateY(0);} }
+        .cards-container { position: relative; width: 100%; height: 65vh; display: flex; justify-content: center; align-items: center; }
+        .swipe-card { width: 90%; max-width: 340px; background: rgba(30,30,45,0.55); backdrop-filter: blur(16px); border-radius: 36px; padding: 20px; text-align: center; }
+        .card-img { width: 100%; height: 240px; border-radius: 28px; object-fit: cover; }
+        .action-buttons { display: flex; justify-content: center; gap: 40px; margin-top: 20px; }
+        .action-circle { background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); padding: 15px; border-radius: 60px; cursor: pointer; }
+        .like-btn { color: #4cff8e; }
+        .pass-btn { color: #ff6b6b; }
+        .explore-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; }
+        .explore-card { background: rgba(255,255,245,0.15); backdrop-filter: blur(8px); border-radius: 28px; padding: 12px; text-align: center; position: relative; }
+        .report-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,80,80,0.7); border: none; border-radius: 20px; padding: 4px 8px; color: white; font-size: 0.7rem; cursor: pointer; }
+        .small-glass { background: rgba(255,255,200,0.25); border: none; border-radius: 60px; padding: 8px 16px; color: white; cursor: pointer; }
+        .chat-list-container, .chat-screen-container { background: rgba(0,0,0,0.3); backdrop-filter: blur(12px); border-radius: 32px; overflow: hidden; margin-top: 12px; }
+        .search-bar { padding: 12px; background: rgba(255,255,255,0.1); margin: 8px; border-radius: 40px; display: flex; align-items: center; gap: 8px; }
+        .search-bar i { color: white; margin-left: 12px; }
+        .search-bar input { background: transparent; border: none; color: white; flex: 1; outline: none; }
+        .chat-list-item { display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.1s; }
+        .chat-list-item:hover { background: rgba(255,255,255,0.1); }
+        .avatar { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; position: relative; }
+        .online-dot { position: absolute; width: 14px; height: 14px; background: #22c55e; border-radius: 50%; border: 2px solid white; bottom: 2px; right: 2px; }
+        .chat-info { flex: 1; }
+        .chat-name { font-weight: 600; color: white; display: flex; align-items: center; gap: 6px; }
+        .chat-name i.verified-icon { color: #3b82f6; font-size: 0.9rem; }
+        .last-msg { font-size: 0.75rem; color: #ccc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+        .chat-meta { text-align: right; }
+        .time { font-size: 0.7rem; color: #aaa; }
+        .unread-badge { background: #22c55e; color: white; border-radius: 20px; padding: 2px 8px; font-size: 0.7rem; margin-top: 4px; display: inline-block; }
+        .chat-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .back-btn { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .chat-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .chat-profile img { width: 44px; height: 44px; border-radius: 50%; }
+        .chat-status { font-size: 0.7rem; color: #ccc; }
+        .chat-actions i { font-size: 1.3rem; margin-left: 16px; color: white; cursor: pointer; }
+        .messages-area { height: 55vh; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 8px; }
+        .message-bubble { max-width: 80%; padding: 10px 14px; border-radius: 22px; animation: fadeInUp 0.2s ease; position: relative; }
+        .received { background: rgba(255,255,255,0.2); backdrop-filter: blur(4px); align-self: flex-start; border-bottom-left-radius: 4px; color: white; }
+        .sent { background: linear-gradient(135deg, #22c55e, #15803d); align-self: flex-end; border-bottom-right-radius: 4px; color: white; }
+        .message-time { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; display: flex; justify-content: flex-end; gap: 4px; align-items: center; }
+        .message-status { font-size: 0.7rem; margin-left: 4px; }
+        .status-sent { color: #ccc; }
+        .status-delivered { color: #ccc; }
+        .status-read { color: #4cff8e; }
+        .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 8px 12px; background: rgba(255,255,255,0.1); border-radius: 20px; width: fit-content; margin: 8px 0; }
+        .typing-dot { width: 6px; height: 6px; background: #ccc; border-radius: 50%; animation: pulse 1s infinite; }
+        .input-area { display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(0,0,0,0.4); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.1); }
+        .input-area input { flex: 1; background: rgba(255,255,255,0.2); border: none; border-radius: 30px; padding: 12px 18px; color: white; outline: none; }
+        .input-area button { background: #22c55e; border: none; width: 44px; height: 44px; border-radius: 50%; color: white; cursor: pointer; }
+        .reply-preview { background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 16px; font-size: 0.8rem; margin-bottom: 8px; display: none; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0%,100%{ opacity: 0.3; } 50%{ opacity: 1; } }
+        .profile-top { text-align: center; margin-bottom: 24px; }
+        .profile-pic-large { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid #ffd966; margin-bottom: 12px; position: relative; }
+        .camera-overlay { position: absolute; bottom: 5px; right: calc(50% - 55px); background: #22c55e; border-radius: 50%; padding: 8px; cursor: pointer; border: 2px solid white; }
+        .verified-badge { color: #3b82f6; margin-left: 6px; font-size: 1.2rem; vertical-align: middle; }
+        .stats-row { display: flex; justify-content: space-around; background: rgba(0,0,0,0.3); border-radius: 28px; padding: 12px; margin: 16px 0; text-align: center; color: white; }
+        .action-buttons-row { display: flex; gap: 12px; margin: 16px 0; }
+        .action-buttons-row button { flex: 1; background: rgba(255,255,255,0.2); border: none; border-radius: 40px; padding: 10px; color: white; font-weight: 500; cursor: pointer; }
+        .settings-list { background: rgba(0,0,0,0.3); border-radius: 32px; overflow: hidden; margin-top: 16px; }
+        .settings-item { display: flex; align-items: center; justify-content: space-between; padding: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); cursor: pointer; color: white; }
+        .settings-item-left { display: flex; align-items: center; gap: 14px; }
+        .toggle-switch { width: 48px; height: 24px; background: rgba(255,255,255,0.3); border-radius: 30px; position: relative; transition: 0.2s; cursor: pointer; }
+        .toggle-switch.active { background: #22c55e; }
+        .toggle-knob { width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 3px; transition: 0.2s; }
+        .toggle-switch.active .toggle-knob { left: 25px; }
+        .edit-profile-form input, .edit-profile-form textarea, .edit-profile-form select { width: 100%; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 28px; padding: 12px; margin: 8px 0; color: white; outline: none; }
+        .edit-profile-form input:focus { border-color: #22c55e; box-shadow: 0 0 8px #22c55e; }
+        .interests-tag-input { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+        .tag { background: #22c55e; padding: 6px 12px; border-radius: 30px; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
+        .tag i { cursor: pointer; font-size: 0.7rem; }
+        .premium-card { background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05)); border: 1px solid gold; border-radius: 28px; padding: 16px; margin-top: 16px; text-align: center; }
+        .back-header { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; }
+        .back-header button { background: none; border: none; color: white; font-size: 1.5rem; cursor: pointer; }
+        .progress-bar { background: rgba(255,255,255,0.2); border-radius: 20px; height: 6px; width: 100%; margin: 12px 0; }
+        .progress-fill { background: #22c55e; width: 0%; height: 6px; border-radius: 20px; }
+        .last-seen-preview { font-size: 0.7rem; color: #aaa; margin-top: 4px; }
+        .slider-container { display: flex; align-items: center; gap: 12px; margin: 12px 0; }
+        .dual-slider-container { display: flex; flex-direction: column; gap: 8px; padding: 12px; }
+        .range-values { display: flex; justify-content: space-between; color: white; font-size: 0.8rem; }
+        input[type="range"] { flex: 1; background: rgba(255,255,255,0.2); height: 4px; border-radius: 5px; -webkit-appearance: none; }
+        input[type="range"]:focus { outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #22c55e; cursor: pointer; }
+        .photo-grid { display: flex; gap: 8px; margin: 12px 0; overflow-x: auto; }
+        .photo-grid img { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; }
+        .swipe-counter { text-align: center; color: white; font-size: 0.8rem; margin: 10px 0; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 20px; }
+        .blocked-badge { background: rgba(255,80,80,0.7); padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; margin-left: 8px; }
+        .report-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); backdrop-filter: blur(20px); border-radius: 28px; padding: 20px; z-index: 2000; width: 80%; max-width: 300px; text-align: center; }
+        .report-modal button { margin: 8px; padding: 10px; border-radius: 40px; border: none; cursor: pointer; }
+        .forgot-password { color: #ffec99; font-size: 0.8rem; cursor: pointer; margin-top: 8px; display: inline-block; }
+        .resend-email { color: #ffec99; font-size: 0.7rem; cursor: pointer; margin-top: 8px; display: inline-block; text-decoration: underline; }
+        .blocked-user-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .owner-credit { margin-top: 24px; font-size: 0.8rem; color: rgba(255,255,255,0.7); display: flex; align-items: center; justify-content: center; gap: 6px; }
+        .gold-check { color: #ffd700; }
+        .upgrade-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); border-radius: 32px; padding: 24px; z-index: 2001; width: 90%; max-width: 360px; text-align: center; }
+        .upgrade-plan { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 16px; margin: 12px 0; cursor: pointer; transition: 0.2s; }
+        .upgrade-plan:hover { background: rgba(255,255,255,0.2); transform: scale(1.02); }
+        .admin-panel { background: rgba(0,0,0,0.8); backdrop-filter: blur(20px); border-radius: 32px; padding: 20px; margin-top: 20px; }
+        .admin-stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+        .stat-card { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 12px; text-align: center; }
+        .admin-section { margin-top: 16px; }
+        .admin-section h4 { color: white; margin-bottom: 8px; }
+        .admin-item { border-bottom: 1px solid rgba(255,255,255,0.1); padding: 8px; font-size: 0.8rem; }
+        .stripe-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: rgba(0,0,0,0.95); backdrop-filter: blur(20px); border-radius: 32px; padding: 24px; z-index: 2002; width: 90%; max-width: 400px; text-align: center; }
+        .stripe-card { background: #fff; border-radius: 16px; padding: 16px; margin: 12px 0; color: #000; text-align: left; }
+        .visibility-score { background: rgba(0,0,0,0.4); border-radius: 40px; padding: 4px 12px; font-size: 0.7rem; display: inline-block; }
+        .event-card { background: rgba(255,255,255,0.1); border-radius: 24px; padding: 12px; margin: 8px 0; cursor: pointer; }
+        .quality-match { background: rgba(255,215,0,0.15); border: 1px solid gold; }
+        .intro-video { max-width: 100%; border-radius: 16px; margin-top: 8px; }
+        /* Custom modal for all popups */
+        .custom-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .custom-modal-content { background: rgba(30,30,40,0.95); backdrop-filter: blur(20px); border-radius: 32px; padding: 24px; min-width: 280px; max-width: 90%; text-align: center; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .custom-modal-content h3 { color: white; margin-bottom: 12px; font-size: 1.2rem; }
+        .custom-modal-content p { color: #ddd; margin-bottom: 20px; }
+        .custom-modal-content input { width: 100%; padding: 12px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); border-radius: 40px; color: white; margin-bottom: 16px; outline: none; }
+        .custom-modal-buttons { display: flex; gap: 12px; justify-content: center; }
+        .custom-modal-buttons button { padding: 10px 20px; border-radius: 40px; border: none; cursor: pointer; font-weight: 600; }
+        .custom-modal-buttons .confirm-btn { background: #22c55e; color: white; }
+        .custom-modal-buttons .cancel-btn { background: rgba(255,255,255,0.2); color: white; }
+        /* Quick profile modal */
+        .quick-profile-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center; z-index: 10001; }
+        .quick-profile-content { background: rgba(20,20,30,0.95); backdrop-filter: blur(20px); border-radius: 32px; padding: 24px; max-width: 340px; width: 85%; text-align: center; border: 1px solid rgba(255,255,255,0.2); }
+        .quick-profile-content img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 12px; }
+        .notification-toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); color: white; padding: 12px 20px; border-radius: 60px; z-index: 10002; animation: fadeOut 3s forwards; pointer-events: none; }
+        @keyframes fadeOut { 0% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; visibility: hidden; } }
+    </style>
+</head>
+<body>
+<div class="bg-overlay"></div>
+
+<!-- LOGIN / SIGNUP -->
+<div id="loginView" class="auth-container">
+    <div class="glass-card auth-card">
+        <div class="logo-area">
+            <i class="fas fa-heart logo-icon"></i>
+            <h1>MEET</h1>
+            <p>where sparks glow</p>
+        </div>
+        <form id="loginFormElem">
+            <div class="input-group">
+                <i class="fas fa-envelope input-icon"></i>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+            </div>
+            <div class="input-group">
+                <i class="fas fa-lock input-icon"></i>
+                <input type="password" id="loginPassword" placeholder="Password">
+                <i class="fas fa-eye-slash toggle-pwd" data-target="loginPassword"></i>
+            </div>
+            <button type="submit" class="gradient-btn">Log In</button>
+            <div class="forgot-password" id="forgotPasswordBtn">Forgot Password?</div>
+            <div class="forgot-password" id="appealBanBtn" style="margin-top:4px;">Banned? Appeal here</div>
+            <div class="divider">or</div>
+            <button type="button" id="googleSignInBtn" class="gradient-btn google-btn"><i class="fab fa-google"></i> Sign in with Google</button>
+            <p class="switch-auth">No account? <a href="#" id="goToSignupLink">Sign up</a></p>
+            <div class="owner-credit"><span>Website Owner: Crayne Sakala</span><i class="fas fa-check-circle gold-check"></i></div>
+        </form>
+    </div>
+</div>
+<div id="signupView" class="auth-container" style="display:none;">
+    <div class="glass-card auth-card">
+        <h2 style="color:white;">Create account</h2>
+        <form id="signupFormElem">
+            <div class="input-group"><i class="fas fa-user input-icon"></i><input type="text" id="signupName" placeholder="Full name"></div>
+            <div class="input-group"><i class="fas fa-envelope input-icon"></i><input type="email" id="signupEmail" placeholder="Email"></div>
+            <div class="input-group"><i class="fas fa-lock input-icon"></i><input type="password" id="signupPassword" placeholder="Password"></div>
+            <div class="input-group"><i class="fas fa-check-circle input-icon"></i><input type="password" id="confirmPwd" placeholder="Confirm password"></div>
+            <div class="input-group"><i class="fas fa-venus-mars input-icon"></i><select id="signupGender"><option>Female</option><option>Male</option></select></div>
+            <div class="input-group"><i class="fas fa-calendar input-icon"></i><input type="number" id="signupAge" placeholder="Age"></div>
+            <button type="submit" class="gradient-btn">Create account</button>
+            <div class="divider">or</div>
+            <button type="button" id="googleSignUpBtn" class="gradient-btn google-btn"><i class="fab fa-google"></i> Sign up with Google</button>
+            <p class="switch-auth">Already a member? <a href="#" id="goToLoginLink">Log in</a></p>
+            <div class="owner-credit"><span>Website Owner: Crayne Sakala</span><i class="fas fa-check-circle gold-check"></i></div>
+        </form>
+    </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" class="app-main">
+    <div id="swipeView" class="view">
+        <h2 style="color:white; text-align:center;">Swipe</h2>
+        <div id="swipeCounter" class="swipe-counter">Swipes remaining: 20</div>
+        <div id="visibilityScore" class="visibility-score" style="margin:8px auto;">Profile seen by 0 today</div>
+        <div id="cardsStack" class="cards-container"></div>
+        <div class="action-buttons">
+            <div class="action-circle pass-btn" id="passBtn"><i class="fas fa-times fa-2x"></i></div>
+            <div class="action-circle like-btn" id="likeBtn"><i class="fas fa-heart fa-2x"></i></div>
+        </div>
+        <div id="matchToast" style="position:fixed; bottom:30%; left:10%; right:10%; background:gold; border-radius:50px; text-align:center; padding:12px; display:none; z-index:200;">✨ It's a match! ✨</div>
+    </div>
+    <div id="exploreView" class="view">
+        <h2 style="color:white;">Discover</h2>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="number" id="filterAgeMin" placeholder="Min age" style="background:rgba(255,255,255,0.2); border-radius:40px; padding:8px; width:80px;">
+            <input type="number" id="filterAgeMax" placeholder="Max age" style="background:rgba(255,255,255,0.2); border-radius:40px; padding:8px; width:80px;">
+            <input type="number" id="filterDistance" placeholder="Distance (km)" style="background:rgba(255,255,255,0.2); border-radius:40px; padding:8px; width:100px;">
+            <select id="filterIntent" style="background:rgba(255,255,255,0.2); border-radius:40px;"><option value="">Intent (any)</option><option>Serious</option><option>Casual</option><option>Friends</option></select>
+            <select id="filterGender" style="background:rgba(255,255,255,0.2); border-radius:40px;"><option value="">Any gender</option><option>Female</option><option>Male</option></select>
+            <button id="applyFilterBtn" class="small-glass">Filter</button>
+        </div>
+        <div id="matchQueue" style="background:rgba(0,0,0,0.3); border-radius:28px; padding:12px; margin-top:12px;">
+            <h3 style="color:white;">People who liked you (last 5)</h3>
+            <div id="pendingLikesList"></div>
+        </div>
+        <div id="exploreList" class="explore-grid"></div>
+    </div>
+    <div id="messagesView" class="view">
+        <div style="padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 32px 32px 0 0; text-align: center;">
+            <h3 style="color:white; margin:0;">MEET</h3>
+        </div>
+        <div id="chatListContainer" class="chat-list-container"></div>
+        <div id="chatScreenContainer" class="chat-screen-container" style="display:none;"></div>
+    </div>
+    <div id="profileView" class="view">
+        <div class="glass-card" style="padding:20px;">
+            <div style="text-align:right;"><i class="fas fa-cog" id="openSettingsBtn" style="font-size:1.5rem; color:white; cursor:pointer;"></i></div>
+            <div class="profile-top">
+                <div style="position:relative; display:inline-block;">
+                    <img id="profileAvatar" class="profile-pic-large" src="">
+                    <div class="camera-overlay" id="changePhotoBtn"><i class="fas fa-camera"></i></div>
+                    <input type="file" id="photoUploadInput" style="display:none;" accept="image/*">
+                </div>
+                <h2 style="color:white; margin-top:8px;"><span id="profileUsername"></span><i class="fas fa-check-circle verified-badge" style="display:none;"></i></h2>
+                <p id="profileStatus" style="color:#ccc;"></p>
+                <div class="last-seen-preview" id="lastSeenPreview"></div>
+                <div class="progress-bar"><div class="progress-fill" id="profileProgress"></div></div>
+                <div class="stats-row">
+                    <div><strong id="matchesCount">0</strong><br>Matches</div>
+                    <div><strong id="likesCount">0</strong><br>Likes</div>
+                    <div><strong id="viewsCount">0</strong><br>Views</div>
+                </div>
+                <div class="action-buttons-row">
+                    <button id="editProfileBtn"><i class="fas fa-edit"></i> Edit Profile</button>
+                    <button id="shareProfileBtn"><i class="fas fa-share-alt"></i> Share</button>
+                    <button id="boostProfileBtn"><i class="fas fa-rocket"></i> Boost</button>
+                </div>
+            </div>
+            <div class="settings-list" id="settingsListContainer"></div>
+            <button id="logoutBtnProfile" style="background:rgba(255,80,80,0.5); border:none; border-radius:60px; padding:12px; width:100%; margin-top:20px; color:white;">Logout</button>
+        </div>
+    </div>
+    <div id="editProfileView" class="view" style="display:none;">
+        <div class="glass-card" style="padding:20px;">
+            <div class="back-header"><button id="backFromEdit"><i class="fas fa-arrow-left"></i></button><h2 style="color:white;">Edit Profile</h2></div>
+            <div class="edit-profile-form">
+                <div class="photo-grid" id="photoGrid"></div>
+                <input type="text" id="editName" placeholder="Name">
+                <textarea id="editBio" rows="2" placeholder="Bio"></textarea>
+                <select id="editGender"><option>Female</option><option>Male</option></select>
+                <input type="number" id="editAge" placeholder="Age">
+                <input type="text" id="editLocation" placeholder="Location">
+                <label style="color:white;">Interests (add tags):</label>
+                <div class="interests-tag-input" id="interestsContainer"></div>
+                <input type="text" id="newInterestInput" placeholder="Type interest and press Enter" style="margin-top:4px;">
+                <label style="color:white;">Looking for:</label>
+                <select id="editIntent"><option>Serious</option><option>Casual</option><option>Friends</option></select>
+                <label style="color:white;">Video/voice intro:</label>
+                <input type="file" id="introUploadInput" accept="video/*,audio/*">
+                <button id="uploadIntroBtn" class="small-glass">Upload intro</button>
+                <div id="introPreview"></div>
+                <button id="saveProfileChanges" class="gradient-btn" style="margin-top:16px;">Save Changes</button>
+            </div>
+        </div>
+    </div>
+    <div id="settingsDetailView" class="view" style="display:none;">
+        <div class="glass-card" style="padding:20px;">
+            <div class="back-header"><button id="backFromSettings"><i class="fas fa-arrow-left"></i></button><h2 id="settingsTitle" style="color:white;">Settings</h2></div>
+            <div id="settingsDetailContent"></div>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <div class="nav-item" data-nav="swipe"><i class="fas fa-fire"></i><span>Swipe</span></div>
+        <div class="nav-item" data-nav="explore"><i class="fas fa-compass"></i><span>Explore</span></div>
+        <div class="nav-item" data-nav="messages"><i class="fas fa-comment-dots"></i><span>Chats</span></div>
+        <div class="nav-item" data-nav="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+    </div>
+</div>
+
+<script type="module">
+    // ========== CUSTOM MODAL SYSTEM (replaces alert/confirm/prompt) ==========
+    window.customAlert = (message, title = "Notice") => {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'custom-modal';
+            modal.innerHTML = `<div class="custom-modal-content"><h3>${title}</h3><p>${message}</p><div class="custom-modal-buttons"><button class="confirm-btn">OK</button></div></div>`;
+            document.body.appendChild(modal);
+            modal.querySelector('.confirm-btn').onclick = () => { modal.remove(); resolve(); };
+        });
+    };
+    window.customConfirm = (message, title = "Confirm") => {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'custom-modal';
+            modal.innerHTML = `<div class="custom-modal-content"><h3>${title}</h3><p>${message}</p><div class="custom-modal-buttons"><button class="confirm-btn">Yes</button><button class="cancel-btn">No</button></div></div>`;
+            document.body.appendChild(modal);
+            modal.querySelector('.confirm-btn').onclick = () => { modal.remove(); resolve(true); };
+            modal.querySelector('.cancel-btn').onclick = () => { modal.remove(); resolve(false); };
+        });
+    };
+    window.customPrompt = (message, defaultValue = "", title = "Input") => {
+        return new Promise((resolve) => {
+            const modal = document.createElement('div');
+            modal.className = 'custom-modal';
+            modal.innerHTML = `<div class="custom-modal-content"><h3>${title}</h3><p>${message}</p><input type="text" id="customPromptInput" value="${defaultValue.replace(/"/g, '&quot;')}" placeholder="Enter value..."><div class="custom-modal-buttons"><button class="confirm-btn">OK</button><button class="cancel-btn">Cancel</button></div></div>`;
+            document.body.appendChild(modal);
+            const input = modal.querySelector('#customPromptInput');
+            modal.querySelector('.confirm-btn').onclick = () => { const val = input.value; modal.remove(); resolve(val); };
+            modal.querySelector('.cancel-btn').onclick = () => { modal.remove(); resolve(null); };
+            input.focus();
+        });
+    };
+    window.alert = window.customAlert;
+    window.confirm = window.customConfirm;
+    window.prompt = window.customPrompt;
+
+    // ========== FIREBASE INIT ==========
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, sendEmailVerification, updateEmail, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, collection, addDoc, query, orderBy, onSnapshot, writeBatch, where, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyCWliI60g90f-Ed4ydFBPbz027fo7N29tI",
+        authDomain: "ceezy-website.firebaseapp.com",
+        projectId: "ceezy-website",
+        storageBucket: "ceezy-website.appspot.com",
+        messagingSenderId: "59858219268",
+        appId: "1:59858219268:web:placeholder"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    let currentUser = null;
+    let heartbeatInterval = null;
+    let unsubscribeUser = null;
+    let currentChatPartner = null;
+    let typingTimeout = null;
+    let unsubscribeMessages = null;
+    let adminUnsubscribes = [];
+    let unsubscribeNotifications = null;
+
+    // ========== NOTIFICATION FUNCTION ==========
+    function showNotificationToast(message) {
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerText = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function sendLikeNotification(fromUserId, toUserId, fromName) {
+        await addDoc(collection(db, "notifications"), {
+            toUserId: toUserId,
+            fromUserId: fromUserId,
+            fromName: fromName,
+            type: "like",
+            read: false,
+            timestamp: Date.now()
+        });
+    }
+
+    function listenForNotifications() {
+        if (unsubscribeNotifications) unsubscribeNotifications();
+        const q = query(collection(db, "notifications"), where("toUserId", "==", currentUser.uid), where("read", "==", false));
+        unsubscribeNotifications = onSnapshot(q, (snapshot) => {
+            snapshot.docChanges().forEach(change => {
+                if (change.type === "added") {
+                    const notif = change.doc.data();
+                    showNotificationToast(`💖 ${notif.fromName} liked you!`);
+                    // Mark as read after showing
+                    updateDoc(doc(db, "notifications", change.doc.id), { read: true });
+                }
+            });
+        });
+    }
+
+    // ========== AUTH (with ban check) ==========
+    window.signupUser = async (email, password, name, age, gender) => {
+        try {
+            // Check if email is already banned? We'll check on login, but for signup we can also check if a banned account exists with this email.
+            const existingQuery = query(collection(db, "users"), where("email", "==", email));
+            const existingSnap = await getDocs(existingQuery);
+            if (!existingSnap.empty) {
+                const existingUser = existingSnap.docs[0].data();
+                if (existingUser.banned === true) {
+                    throw new Error("This email is banned from MEET.");
+                }
+            }
+            const userCred = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCred.user, { displayName: name });
+            await sendEmailVerification(userCred.user);
+            await setDoc(doc(db, "users", userCred.user.uid), {
+                uid: userCred.user.uid, name, email, age: parseInt(age), gender,
+                bio: "New here!", interests: [], profilePic: "", matches: [], swipes: [],
+                swipesToday: 0, lastSwipeDate: Date.now(), blocked: [], reports: [],
+                location: { lat: 40.7128, lng: -74.0060 }, createdAt: Date.now(),
+                lastSeen: Date.now(), emailVerified: false,
+                privacyLastSeen: true, privacyOnlineStatus: true,
+                prefAgeMin: 18, prefAgeMax: 100, prefDistance: 50,
+                isPremium: false, premiumPlan: "free", premiumExpiresAt: 0,
+                features: { unlimitedSwipes: false, readReceipts: false, seeWhoLikedYou: false, boost: false },
+                verified: false, intent: "Serious", introUrl: "", banned: false
+            });
+            await customAlert("Account created! Verification email sent.", "Success");
+            return userCred.user;
+        } catch (err) { await customAlert(err.message, "Signup Error"); throw err; }
+    };
+
+    window.signInWithGoogle = async () => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const user = result.user;
+            const userDoc = await getDoc(doc(db, "users", user.uid));
+            if (!userDoc.exists()) {
+                await setDoc(doc(db, "users", user.uid), {
+                    uid: user.uid, name: user.displayName || user.email.split('@')[0], email: user.email,
+                    age: 25, gender: "Female", bio: "New here!", interests: [], profilePic: user.photoURL || "",
+                    matches: [], swipes: [], swipesToday: 0, lastSwipeDate: Date.now(), blocked: [], reports: [],
+                    location: { lat: 40.7128, lng: -74.0060 }, createdAt: Date.now(),
+                    lastSeen: Date.now(), emailVerified: true,
+                    privacyLastSeen: true, privacyOnlineStatus: true,
+                    prefAgeMin: 18, prefAgeMax: 100, prefDistance: 50,
+                    isPremium: false, premiumPlan: "free", premiumExpiresAt: 0,
+                    features: { unlimitedSwipes: false, readReceipts: false, seeWhoLikedYou: false, boost: false },
+                    verified: false, intent: "Serious", introUrl: "", banned: false
+                });
+            } else {
+                const userData = userDoc.data();
+                if (userData.banned === true) {
+                    await signOut(auth);
+                    throw new Error("Your account has been banned.");
+                }
+                await updateDoc(doc(db, "users", user.uid), { lastSeen: Date.now(), emailVerified: true });
+            }
+            return user;
+        } catch (err) { await customAlert(err.message, "Google Sign-In Error"); throw err; }
+    };
+
+    window.loginUserFirebase = async (email, password) => {
+        try {
+            const userCred = await signInWithEmailAndPassword(auth, email, password);
+            if (!userCred.user.emailVerified) { await customAlert("Please verify your email.", "Email Not Verified"); await signOut(auth); throw new Error("Email not verified"); }
+            const userDoc = await getDoc(doc(db, "users", userCred.user.uid));
+            const userData = userDoc.data();
+            if (userData && userData.banned === true) {
+                await signOut(auth);
+                throw new Error("Your account has been banned.");
+            }
+            await updateDoc(doc(db, "users", userCred.user.uid), { lastSeen: Date.now(), emailVerified: true });
+            return userCred.user;
+        } catch (err) { throw err; }
+    };
+
+    // ========== QUICK PROFILE MODAL ==========
+    async function showQuickProfile(userId) {
+        const userDoc = await getDoc(doc(db, "users", userId));
+        if (!userDoc.exists()) return;
+        const user = userDoc.data();
+        const modal = document.createElement('div');
+        modal.className = 'quick-profile-modal';
+        modal.innerHTML = `
+            <div class="quick-profile-content">
+                <img src="${user.profilePic || 'https://randomuser.me/api/portraits/lego/1.jpg'}">
+                <h3 style="color:white;">${user.name} ${user.verified ? '<i class="fas fa-check-circle" style="color:#3b82f6;"></i>' : ''}</h3>
+                <p style="color:#ccc;">${user.age} years old</p>
+                <p style="color:#ccc;">${user.bio || "No bio yet"}</p>
+                <p style="color:#ccc;">🎯 ${user.intent || "Not set"}</p>
+                <p style="color:#ccc;">❤️ ${user.interests?.join(', ') || "No interests"}</p>
+                <button class="small-glass close-modal">Close</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.querySelector('.close-modal').onclick = () => modal.remove();
+    }
+
+    // ========== NEW REAL FEATURES (events, intro, appeals) ==========
+    async function loadEvents() {
+        const eventsSnap = await getDocs(query(collection(db, "events"), orderBy("date")));
+        const events = eventsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        const modal = document.createElement('div'); modal.className = 'stripe-modal';
+        modal.innerHTML = `<h3>📅 Upcoming Events</h3><div id="eventsList"></div><button id="createEventBtn" class="gradient-btn">+ Create Event</button><button class="small-glass" id="closeEventsModal">Close</button>`;
+        document.body.appendChild(modal);
+        const eventsDiv = modal.querySelector('#eventsList');
+        eventsDiv.innerHTML = events.map(e => `<div class="event-card" data-id="${e.id}"><strong>${e.title}</strong><br>📍 ${e.location}<br>🕒 ${new Date(e.date).toLocaleString()}<br>👥 ${e.attendees?.length || 0} attending<button class="small-glass rsvp-btn" data-id="${e.id}">${e.attendees?.includes(currentUser.uid) ? 'Leave' : 'Join'}</button></div>`).join('');
+        modal.querySelectorAll('.rsvp-btn').forEach(btn => btn.addEventListener('click', async (e) => {
+            e.stopPropagation(); const eventId = btn.dataset.id; const eventRef = doc(db, "events", eventId);
+            const eventSnap = await getDoc(eventRef); const attendees = eventSnap.data().attendees || [];
+            if (attendees.includes(currentUser.uid)) await updateDoc(eventRef, { attendees: attendees.filter(id => id !== currentUser.uid) });
+            else await updateDoc(eventRef, { attendees: [...attendees, currentUser.uid] });
+            loadEvents();
+        }));
+        modal.querySelector('#createEventBtn').onclick = () => {
+            customPrompt("Event title:", "", "Create Event").then(title => {
+                if(title) customPrompt("Location:", "", "Location").then(location => {
+                    if(location) customPrompt("Date (YYYY-MM-DD HH:MM):", "", "Date").then(date => {
+                        if(date) addDoc(collection(db, "events"), { title, location, date: new Date(date).getTime(), creator: currentUser.uid, attendees: [currentUser.uid], createdAt: Date.now() }).then(() => loadEvents());
+                    });
+                });
+            });
+        };
+        modal.querySelector('#closeEventsModal').onclick = () => modal.remove();
+    }
+
+    async function uploadIntro(file) {
+        const introRef = ref(storage, `intros/${currentUser.uid}/${Date.now()}_${file.name}`);
+        await uploadBytes(introRef, file); const url = await getDownloadURL(introRef);
+        await updateDoc(doc(db, "users", currentUser.uid), { introUrl: url }); await customAlert("Intro uploaded!", "Success");
+    }
+
+    async function submitAppeal(reason) {
+        await addDoc(collection(db, "appeals"), { userId: currentUser.uid, reason, status: "pending", timestamp: Date.now() });
+        await customAlert("Appeal submitted.", "Appeal");
+    }
+
+    let isAdminLoggedIn = false;
+    async function renderAdminPanel() {
+        if (!isAdminLoggedIn) return;
+        adminUnsubscribes.forEach(unsub => unsub());
+        adminUnsubscribes = [];
+        
+        const adminDiv = document.getElementById('adminPanelDiv') || (() => {
+            const div = document.createElement('div');
+            div.id = 'adminPanelDiv';
+            div.className = 'admin-panel';
+            document.getElementById('profileView').querySelector('.glass-card').appendChild(div);
+            return div;
+        })();
+        adminDiv.innerHTML = `
+            <h3>👑 Admin Panel</h3>
+            <div class="admin-stats" id="adminStats"></div>
+            <div class="admin-section">
+                <h4>🔍 Ban User</h4>
+                <input type="text" id="banUserSearchInput" placeholder="Enter user email or name" style="width:100%; padding:8px; border-radius:20px; background:rgba(255,255,255,0.2); border:none; color:white; margin-bottom:8px;">
+                <button class="small-glass" id="searchUserForBanBtn">Search</button>
+                <div id="banUserSearchResults" style="margin-top:8px;"></div>
+            </div>
+            <div class="admin-section">
+                <h4>🚫 Banned Users</h4>
+                <div id="bannedList"></div>
+            </div>
+            <div class="admin-section">
+                <h4>📢 Appeals</h4>
+                <div id="appealsList"></div>
+            </div>
+            <div class="admin-section">
+                <h4>⚠️ Reports</h4>
+                <div id="reportsList"></div>
+            </div>
+            <button class="small-glass" id="adminLogoutBtn">Logout</button>
+        `;
+
+        // Ban user search functionality
+        document.getElementById('searchUserForBanBtn').addEventListener('click', async () => {
+            const searchTerm = document.getElementById('banUserSearchInput').value.trim().toLowerCase();
+            if (!searchTerm) return;
+            const usersSnap = await getDocs(collection(db, "users"));
+            const users = usersSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+            const results = users.filter(u => 
+                u.email?.toLowerCase().includes(searchTerm) || 
+                u.name?.toLowerCase().includes(searchTerm)
+            ).slice(0, 10);
+            
+            const resultsDiv = document.getElementById('banUserSearchResults');
+            if (results.length === 0) {
+                resultsDiv.innerHTML = '<p style="color:#ccc;">No users found.</p>';
+                return;
+            }
+            resultsDiv.innerHTML = results.map(u => `
+                <div class="admin-item" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>${u.name} (${u.email}) ${u.banned ? '<span style="color:#ff6b6b;">[BANNED]</span>' : ''}</span>
+                    ${!u.banned ? `<button class="small-glass ban-user-btn" data-id="${u.id}" data-name="${u.name}">Ban</button>` : `<button class="small-glass unban-user-btn" data-id="${u.id}" data-name="${u.name}">Unban</button>`}
+                </div>
+            `).join('');
+            
+            document.querySelectorAll('.ban-user-btn').forEach(btn => btn.addEventListener('click', async () => {
+                const userId = btn.dataset.id;
+                const userName = btn.dataset.name;
+                if (await customConfirm(`Ban user ${userName}?`, "Confirm Ban")) {
+                    await updateDoc(doc(db, "users", userId), { banned: true });
+                    await customAlert(`User ${userName} has been banned.`, "Banned");
+                    renderAdminPanel(); // refresh
+                }
+            }));
+            document.querySelectorAll('.unban-user-btn').forEach(btn => btn.addEventListener('click', async () => {
+                const userId = btn.dataset.id;
+                const userName = btn.dataset.name;
+                if (await customConfirm(`Unban user ${userName}?`, "Confirm Unban")) {
+                    await updateDoc(doc(db, "users", userId), { banned: false });
+                    await customAlert(`User ${userName} has been unbanned.`, "Unbanned");
+                    renderAdminPanel();
+                }
+            }));
+        });
+
+        // Stats and banned list
+        const usersQuery = query(collection(db, "users"));
+        const unsubUsers = onSnapshot(usersQuery, (snap) => {
+            const users = snap.docs.map(d => d.data());
+            const totalUsers = users.length;
+            const premiumUsers = users.filter(u => u.isPremium === true).length;
+            const bannedUsers = users.filter(u => u.banned === true);
+            document.getElementById('adminStats').innerHTML = `
+                <div class="stat-card">Total Users: ${totalUsers}</div>
+                <div class="stat-card">Premium: ${premiumUsers}</div>
+                <div class="stat-card">Banned: ${bannedUsers.length}</div>
+            `;
+            document.getElementById('bannedList').innerHTML = bannedUsers.map(u => 
+                `<div class="admin-item">${u.name} (${u.email})</div>`
+            ).join('') || '<div class="admin-item">None</div>';
+        });
+        adminUnsubscribes.push(unsubUsers);
+        
+        // Appeals and Reports (same as before)
+        const appealsQuery = query(collection(db, "appeals"), orderBy("timestamp", "desc"));
+        const unsubAppeals = onSnapshot(appealsQuery, (snap) => {
+            const appeals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            document.getElementById('appealsList').innerHTML = appeals.map(a => `
+                <div class="admin-item">
+                    <strong>${a.userId}</strong>: ${a.reason} (${a.status})
+                    <br>
+                    <button class="small-glass approve-appeal" data-id="${a.id}">Approve</button>
+                    <button class="small-glass reject-appeal" data-id="${a.id}">Reject</button>
+                </div>
+            `).join('') || '<div class="admin-item">None</div>';
+            document.querySelectorAll('.approve-appeal').forEach(btn => btn.addEventListener('click', async () => {
+                const appealId = btn.dataset.id;
+                const appeal = appeals.find(a => a.id === appealId);
+                await updateDoc(doc(db, "appeals", appealId), { status: "approved" });
+                if (appeal) {
+                    await updateDoc(doc(db, "users", appeal.userId), { banned: false });
+                    await customAlert(`Appeal approved and user unbanned.`, "Appeal");
+                }
+            }));
+            document.querySelectorAll('.reject-appeal').forEach(btn => btn.addEventListener('click', async () => {
+                await updateDoc(doc(db, "appeals", btn.dataset.id), { status: "rejected" });
+            }));
+        });
+        adminUnsubscribes.push(unsubAppeals);
+        
+        const reportsQuery = query(collection(db, "reports"), orderBy("timestamp", "desc"));
+        const unsubReports = onSnapshot(reportsQuery, (snap) => {
+            const reports = snap.docs.map(d => d.data());
+            document.getElementById('reportsList').innerHTML = reports.map(r => 
+                `<div class="admin-item">Reported: ${r.reportedId} by ${r.reporterId} – Reason: ${r.reason}</div>`
+            ).join('') || '<div class="admin-item">None</div>';
+        });
+        adminUnsubscribes.push(unsubReports);
+        
+        document.getElementById('adminLogoutBtn').onclick = () => {
+            isAdminLoggedIn = false;
+            adminDiv.remove();
+            adminUnsubscribes.forEach(unsub => unsub());
+        };
+    }
+
+    // ========== CORE APP FUNCTIONS ==========
+    async function getAvailableProfiles() {
+        const users = await getDocs(collection(db, "users"));
+        return users.docs.map(d => d.data()).filter(u => 
+            u.uid !== currentUser.uid && 
+            !currentUser.swipes?.includes(u.uid) && 
+            !currentUser.blocked?.includes(u.uid) && 
+            u.banned !== true
+        );
+    }
+    function computeCompatibility(user) {
+        let shared = (currentUser.interests || []).filter(i => (user.interests || []).includes(i)).length;
+        let maxInterests = Math.max((currentUser.interests || []).length, (user.interests || []).length);
+        let interestScore = maxInterests ? (shared / maxInterests) * 50 : 0;
+        let ageScore = Math.max(0, 50 - Math.abs(currentUser.age - user.age) * 2);
+        return Math.min(100, Math.floor(interestScore + ageScore));
+    }
+    async function renderSwipeCards() {
+        let available = await getAvailableProfiles();
+        if(available.length === 0){ 
+            document.getElementById('cardsStack').innerHTML = `<div class="glass-card">No more profiles</div>`; 
+            return; 
+        }
+        let idx = 0; const container = document.getElementById('cardsStack');
+        function display() {
+            if(idx >= available.length) return;
+            const p = available[idx];
+            container.innerHTML = `<div class="swipe-card quality-match"><img class="card-img" src="${p.profilePic}"><h3>${p.name}, ${p.age}</h3><p>${p.bio}</p><div>🎯 Intent: ${p.intent}</div><div>❤️ Compatibility: ${computeCompatibility(p)}%</div><button class="small-glass report-profile-btn" data-id="${p.uid}">Report</button></div>`;
+            const reportBtn = container.querySelector('.report-profile-btn');
+            if(reportBtn) reportBtn.addEventListener('click', (e) => { e.stopPropagation(); showReportModal(p.uid, p.name); });
+        }
+        display();
+        document.getElementById('likeBtn').onclick = async () => {
+            if(idx >= available.length) return;
+            const canSwipe = await checkDailySwipes();
+            if (!canSwipe) { await customAlert("Daily swipe limit reached! Upgrade to premium for unlimited swipes.", "Limit Reached"); return; }
+            const target = available[idx];
+            const swipes = currentUser.swipes || [];
+            swipes.push(target.uid);
+            await updateDoc(doc(db, "users", currentUser.uid), { swipes, swipesToday: (currentUser.swipesToday || 0) + 1 });
+            currentUser.swipes = swipes;
+            currentUser.swipesToday = (currentUser.swipesToday || 0) + 1;
+            
+            await sendLikeNotification(currentUser.uid, target.uid, currentUser.name);
+            
+            if(target.swipes && target.swipes.includes(currentUser.uid)) {
+                const matches = currentUser.matches || [];
+                if(!matches.includes(target.uid)) {
+                    matches.push(target.uid);
+                    await updateDoc(doc(db, "users", currentUser.uid), { matches });
+                    currentUser.matches = matches;
+                    const targetMatches = target.matches || [];
+                    if(!targetMatches.includes(currentUser.uid)) {
+                        targetMatches.push(currentUser.uid);
+                        await updateDoc(doc(db, "users", target.uid), { matches: targetMatches });
+                    }
+                    document.getElementById('matchToast').style.display = 'block';
+                    setTimeout(() => document.getElementById('matchToast').style.display = 'none', 3000);
+                    await customAlert(`🎉 New match with ${target.name}!`, "Match!");
+                }
+            } else {
+                await customAlert(`Liked ${target.name}!`, "Like Sent");
+            }
+            idx++;
+            if(idx < available.length) display();
+            else await renderSwipeCards();
+            await renderProfileUI();
+            await renderChatList();
+            await checkDailySwipes();
+        };
+        document.getElementById('passBtn').onclick = async () => {
+            if(idx >= available.length) return;
+            const canSwipe = await checkDailySwipes();
+            if (!canSwipe) { await customAlert("Daily swipe limit reached! Upgrade to premium for unlimited swipes.", "Limit Reached"); return; }
+            const swipes = currentUser.swipes || [];
+            swipes.push(available[idx].uid);
+            await updateDoc(doc(db, "users", currentUser.uid), { swipes, swipesToday: (currentUser.swipesToday || 0) + 1 });
+            currentUser.swipes = swipes;
+            currentUser.swipesToday = (currentUser.swipesToday || 0) + 1;
+            idx++;
+            if(idx < available.length) display();
+            else await renderSwipeCards();
+            await checkDailySwipes();
+        };
+        await checkDailySwipes();
+    }
+    async function checkDailySwipes() {
+        if (currentUser.features?.unlimitedSwipes === true) {
+            document.getElementById('swipeCounter').innerText = `✨ Unlimited swipes (Premium) ✨`;
+            return true;
+        }
+        const today = new Date().toDateString();
+        const lastSwipeDate = currentUser.lastSwipeDate ? new Date(currentUser.lastSwipeDate).toDateString() : null;
+        if (lastSwipeDate !== today) {
+            await updateDoc(doc(db, "users", currentUser.uid), { swipesToday: 0, lastSwipeDate: Date.now() });
+            currentUser.swipesToday = 0;
+        }
+        const remaining = Math.max(0, 20 - (currentUser.swipesToday || 0));
+        document.getElementById('swipeCounter').innerText = `Swipes remaining today: ${remaining}`;
+        return remaining > 0;
+    }
+    async function renderExplore() {
+        let users = await getDocs(collection(db, "users"));
+        let filtered = users.docs.map(d => d.data()).filter(u => u.uid !== currentUser.uid && !currentUser.blocked?.includes(u.uid) && u.banned !== true);
+        const minAge = parseInt(document.getElementById('filterAgeMin').value) || 18;
+        const maxAge = parseInt(document.getElementById('filterAgeMax').value) || 100;
+        const maxDistance = parseInt(document.getElementById('filterDistance').value) || 100;
+        const intent = document.getElementById('filterIntent').value;
+        const gender = document.getElementById('filterGender').value;
+        if(gender) filtered = filtered.filter(u => u.gender === gender);
+        if(intent) filtered = filtered.filter(u => u.intent === intent);
+        filtered = filtered.filter(u => u.age >= minAge && u.age <= maxAge);
+        if(currentUser.location && currentUser.location.lat) {
+            const haversine = (loc1, loc2) => {
+                if(!loc1 || !loc2) return Infinity;
+                const R = 6371;
+                const dLat = (loc2.lat - loc1.lat) * Math.PI / 180;
+                const dLon = (loc2.lng - loc1.lng) * Math.PI / 180;
+                const a = Math.sin(dLat/2)**2 + Math.cos(loc1.lat * Math.PI/180) * Math.cos(loc2.lat * Math.PI/180) * Math.sin(dLon/2)**2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            };
+            filtered = filtered.filter(u => u.location && haversine(currentUser.location, u.location) <= maxDistance);
+        }
+        const pendingLikes = users.docs.map(d => d.data()).filter(u => u.swipes && u.swipes.includes(currentUser.uid) && !currentUser.swipes?.includes(u.uid));
+        const matchQueueDiv = document.getElementById('matchQueue');
+        if(currentUser.features?.seeWhoLikedYou === true) {
+            matchQueueDiv.style.display = 'block';
+            document.getElementById('pendingLikesList').innerHTML = pendingLikes.slice(0,5).map(u => `<div style="padding:8px;"><img src="${u.profilePic}" width="40" style="border-radius:50%;"> ${u.name}, ${u.age} <button class="small-glass like-back" data-id="${u.uid}">Like Back</button></div>`).join('');
+            document.querySelectorAll('.like-back').forEach(btn => btn.addEventListener('click', async () => {
+                const targetId = btn.dataset.id;
+                const swipes = currentUser.swipes || [];
+                if(!swipes.includes(targetId)) {
+                    swipes.push(targetId);
+                    await updateDoc(doc(db, "users", currentUser.uid), { swipes });
+                    currentUser.swipes = swipes;
+                    const target = users.docs.find(d => d.id === targetId).data();
+                    if(target.swipes && target.swipes.includes(currentUser.uid)) {
+                        const matches = currentUser.matches || [];
+                        if(!matches.includes(targetId)) {
+                            matches.push(targetId);
+                            await updateDoc(doc(db, "users", currentUser.uid), { matches });
+                            currentUser.matches = matches;
+                            await customAlert(`✨ Matched with ${target.name}! ✨`, "Match!");
+                        }
+                    }
+                    renderExplore();
+                }
+            }));
+        } else {
+            matchQueueDiv.style.display = 'none';
+        }
+        document.getElementById('exploreList').innerHTML = filtered.map(u => `<div class="explore-card"><img src="${u.profilePic}" width="80" style="border-radius:50%;"><h4>${u.name}, ${u.age}</h4><button class="small-glass explore-like" data-id="${u.uid}">Like</button><button class="small-glass report-btn" data-id="${u.uid}">Report</button></div>`).join('');
+        document.querySelectorAll('.explore-like').forEach(btn => btn.addEventListener('click', async () => {
+            const targetId = btn.dataset.id;
+            const swipes = currentUser.swipes || [];
+            if(!swipes.includes(targetId)) {
+                swipes.push(targetId);
+                await updateDoc(doc(db, "users", currentUser.uid), { swipes });
+                currentUser.swipes = swipes;
+                await sendLikeNotification(currentUser.uid, targetId, currentUser.name);
+                await customAlert("Liked!", "Success");
+                renderExplore();
+            }
+        }));
+        document.querySelectorAll('.report-btn').forEach(btn => btn.addEventListener('click', () => {
+            const targetId = btn.dataset.id;
+            const target = filtered.find(u => u.uid === targetId);
+            showReportModal(targetId, target?.name);
+        }));
+    }
+    function showReportModal(userId, userName) {
+        const modal = document.createElement('div'); modal.className = 'report-modal';
+        modal.innerHTML = `<h3>Report ${userName}</h3><button data-reason="Spam">Spam</button><button data-reason="Inappropriate">Inappropriate</button><button data-reason="Fake Profile">Fake Profile</button><button data-reason="Harassment">Harassment</button><button data-reason="Other">Other</button><button id="closeReportModal">Cancel</button>`;
+        document.body.appendChild(modal);
+        modal.querySelectorAll('[data-reason]').forEach(btn => btn.addEventListener('click', async () => {
+            await addDoc(collection(db, "reports"), { reporterId: currentUser.uid, reportedId: userId, reason: btn.dataset.reason, timestamp: Date.now() });
+            modal.remove();
+            await customAlert("Reported.", "Report");
+        }));
+        modal.querySelector('#closeReportModal').onclick = () => modal.remove();
+    }
+    async function renderChatList() {
+        const container = document.getElementById('chatListContainer');
+        const matches = currentUser.matches || [];
+        if(matches.length === 0){ container.innerHTML = `<div class="glass-card">No matches yet. Start swiping!</div>`; return; }
+        const users = (await getDocs(collection(db, "users"))).docs.map(d => d.data());
+        const matchedUsers = users.filter(u => matches.includes(u.uid) && u.banned !== true);
+        container.innerHTML = matchedUsers.map(m => `
+            <div class="chat-list-item" data-id="${m.uid}">
+                <div style="position:relative;"><img class="avatar" src="${m.profilePic}">${m.privacyOnlineStatus !== false && (Date.now() - (m.lastSeen||0) < 60000) ? '<span class="online-dot"></span>' : ''}</div>
+                <div class="chat-info"><div class="chat-name">${m.name}${m.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}</div><div class="last-msg">Tap to chat</div></div>
+                <div class="chat-meta"><button class="small-glass block-chat-btn" data-id="${m.uid}">Block</button></div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.chat-list-item').forEach(el => el.addEventListener('click', (e) => { if(!e.target.classList.contains('block-chat-btn')) openChatScreen(el.dataset.id); }));
+        document.querySelectorAll('.block-chat-btn').forEach(btn => btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const targetId = btn.dataset.id;
+            const confirm = await customConfirm(`Block ${users.find(u=>u.uid===targetId)?.name}?`, "Block User");
+            if(confirm) {
+                const blocked = currentUser.blocked || [];
+                blocked.push(targetId);
+                await updateDoc(doc(db, "users", currentUser.uid), { blocked });
+                currentUser.blocked = blocked;
+                renderChatList();
+            }
+        }));
+    }
+    async function openChatScreen(partnerId) {
+        if(currentUser.verified !== true) { await customAlert("You must verify your identity before chatting.", "Verification Required"); return; }
+        currentChatPartner = partnerId;
+        const users = (await getDocs(collection(db, "users"))).docs.map(d => d.data());
+        const partner = users.find(u => u.uid === partnerId);
+        document.getElementById('chatListContainer').style.display = 'none';
+        const screenDiv = document.getElementById('chatScreenContainer');
+        screenDiv.style.display = 'block';
+        let statusText = '';
+        if(partner.privacyOnlineStatus !== false && (Date.now() - (partner.lastSeen||0) < 60000)) statusText = 'Online';
+        else if(partner.privacyLastSeen !== false && partner.lastSeen) statusText = new Date(partner.lastSeen).toLocaleTimeString();
+        else statusText = 'Offline';
+        screenDiv.innerHTML = `
+            <div class="chat-header"><button class="back-btn" id="backToChatList"><i class="fas fa-arrow-left"></i></button><div class="chat-profile" data-id="${partner.uid}"><img src="${partner.profilePic}" id="chatAvatar"><div><div class="chat-name">${partner.name} ${partner.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}</div><div class="chat-status" id="chatStatus">${statusText}</div><div id="typingStatus" style="font-size:0.7rem;"></div></div></div><div class="chat-actions"><i class="fas fa-phone" id="callDemo"></i><i class="fas fa-video" id="videoDemo"></i><i class="fas fa-ban" id="blockFromChat"></i><i class="fas fa-ellipsis-v" id="menuUnmatch"></i></div></div>
+            <div class="messages-area" id="messagesArea"></div>
+            <div class="input-area"><input type="text" id="messageInputChat" placeholder="Type a message..."><button id="sendChatMsg"><i class="fas fa-paper-plane"></i></button></div>
+        `;
+        document.querySelector('.chat-profile').addEventListener('click', () => showQuickProfile(partner.uid));
+        document.getElementById('backToChatList').onclick = () => { screenDiv.style.display = 'none'; document.getElementById('chatListContainer').style.display = 'block'; if(unsubscribeMessages) unsubscribeMessages(); renderChatList(); };
+        document.getElementById('blockFromChat')?.addEventListener('click', async () => {
+            const confirm = await customConfirm(`Block ${partner.name}?`, "Block User");
+            if(confirm) {
+                const blocked = currentUser.blocked || [];
+                blocked.push(partnerId);
+                await updateDoc(doc(db, "users", currentUser.uid), { blocked });
+                currentUser.blocked = blocked;
+                document.getElementById('backToChatList').click();
+            }
+        });
+        document.getElementById('menuUnmatch')?.addEventListener('click', async () => {
+            const confirm = await customConfirm(`Unmatch ${partner.name}?`, "Unmatch");
+            if(confirm) {
+                const matches = currentUser.matches.filter(id => id !== partnerId);
+                await updateDoc(doc(db, "users", currentUser.uid), { matches });
+                currentUser.matches = matches;
+                document.getElementById('backToChatList').click();
+            }
+        });
+        const typingRef = doc(db, "typing", `${currentUser.uid}_${partnerId}`);
+        onSnapshot(typingRef, (doc) => { if(doc.exists() && doc.data().isTyping && doc.data().userId === partnerId) document.getElementById('typingStatus').innerHTML = "typing..."; else document.getElementById('typingStatus').innerHTML = ""; });
+        const input = document.getElementById('messageInputChat');
+        input.addEventListener('input', async () => {
+            await setDoc(typingRef, { userId: currentUser.uid, isTyping: true, timestamp: Date.now() });
+            if(typingTimeout) clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(async () => { await setDoc(typingRef, { userId: currentUser.uid, isTyping: false, timestamp: Date.now() }); }, 1000);
+        });
+        const chatId = [currentUser.uid, partnerId].sort().join('_');
+        const messagesArea = document.getElementById('messagesArea');
+        const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp"));
+        if(unsubscribeMessages) unsubscribeMessages();
+        unsubscribeMessages = onSnapshot(q, async (snapshot) => {
+            const messages = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            messagesArea.innerHTML = messages.map(msg => {
+                const isSent = msg.senderId === currentUser.uid;
+                const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                let statusHtml = '';
+                if(isSent && currentUser.features?.readReceipts === true) {
+                    if(msg.status === 'sent') statusHtml = '<span class="message-status status-sent">✓</span>';
+                    else if(msg.status === 'delivered') statusHtml = '<span class="message-status status-delivered">✓✓</span>';
+                    else if(msg.status === 'read') statusHtml = '<span class="message-status status-read">✓✓</span>';
+                }
+                return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><div class="message-text">${msg.text}</div><div class="message-time">${time} ${statusHtml}</div></div>`;
+            }).join('');
+            messagesArea.scrollTop = messagesArea.scrollHeight;
+            const batch = writeBatch(db);
+            messages.forEach(msg => {
+                if(msg.senderId === partnerId && !msg.read) {
+                    const msgRef = doc(db, "chats", chatId, "messages", msg.id);
+                    batch.update(msgRef, { read: true, status: 'read' });
+                }
+            });
+            await batch.commit();
+        });
+        document.getElementById('sendChatMsg').onclick = async () => {
+            const text = input.value.trim();
+            if(!text) return;
+            await addDoc(collection(db, "chats", chatId, "messages"), { senderId: currentUser.uid, text, timestamp: Date.now(), status: "sent", read: false });
+            input.value = '';
+            await setDoc(typingRef, { userId: currentUser.uid, isTyping: false, timestamp: Date.now() });
+        };
+    }
+    async function updateProfileCompletion() {
+        const fields = [currentUser.name, currentUser.bio, currentUser.location];
+        let filled = fields.filter(f => f).length;
+        let percent = (filled/3)*100;
+        document.getElementById('profileProgress').style.width = percent+'%';
+    }
+    async function renderProfileUI() {
+        document.getElementById('profileUsername').innerText = currentUser.name;
+        document.getElementById('profileStatus').innerText = currentUser.bio || "Hey there!";
+        document.getElementById('profileAvatar').src = currentUser.profilePic || 'https://randomuser.me/api/portraits/lego/1.jpg';
+        document.getElementById('matchesCount').innerText = currentUser.matches?.length || 0;
+        document.getElementById('likesCount').innerText = currentUser.swipes?.length || 0;
+        document.getElementById('viewsCount').innerText = "0";
+        updateProfileCompletion();
+        if(currentUser.verified) document.querySelector('.verified-badge').style.display = 'inline-block';
+        else document.querySelector('.verified-badge').style.display = 'none';
+        const boostBtn = document.getElementById('boostProfileBtn');
+        if(currentUser.features?.boost === true) boostBtn.onclick = async () => await customAlert("Boost activated! Your profile is now at the top for 30 minutes.", "Boost");
+        else boostBtn.onclick = async () => await customAlert("Upgrade to Platinum to unlock Boost feature.", "Premium Required");
+        
+        const settingsList = [
+            { icon: "fas fa-user-circle", title: "Account", key: "account" },
+            { icon: "fas fa-lock", title: "Privacy", key: "privacy" },
+            { icon: "fas fa-sliders-h", title: "Dating Preferences", key: "dating" },
+            { icon: "fas fa-crown", title: "Premium Features", key: "premium" },
+            { icon: "fas fa-question-circle", title: "Help & Support", key: "help" },
+            { icon: "fas fa-gem", title: "Upgrade to Premium", key: "upgrade" },
+            { icon: "fas fa-id-card", title: "Verify Identity", key: "verify" },
+            { icon: "fas fa-shield-alt", title: "Admin Panel", key: "admin" },
+            { icon: "fas fa-calendar-alt", title: "Events", key: "events" },
+            { icon: "fas fa-gavel", title: "Appeal Ban", key: "appeal" }
+        ];
+        document.getElementById('settingsListContainer').innerHTML = settingsList.map(s => `<div class="settings-item" data-key="${s.key}"><div class="settings-item-left"><i class="${s.icon}"></i><span>${s.title}</span></div><i class="fas fa-chevron-right"></i></div>`).join('');
+        document.querySelectorAll('.settings-item').forEach(el => el.addEventListener('click', () => {
+            const key = el.dataset.key;
+            if(key === 'upgrade') showUpgradeModal();
+            else if(key === 'verify') verifyIdentity();
+            else if(key === 'admin') showAdminLogin();
+            else if(key === 'events') loadEvents();
+            else if(key === 'appeal') submitAppealPrompt();
+            else showSettingsDetail(key);
+        }));
+        
+        document.getElementById('editProfileBtn').onclick = () => { document.getElementById('profileView').classList.remove('active-view'); document.getElementById('editProfileView').style.display = 'block'; loadEditProfile(); };
+        document.getElementById('shareProfileBtn').onclick = async () => await customAlert("Share profile link (demo)", "Share");
+        document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoUploadInput').click();
+        document.getElementById('photoUploadInput').onchange = async (e) => {
+            if(e.target.files[0]){
+                const file = e.target.files[0];
+                const storageRef = ref(storage, `profilePics/${currentUser.uid}/${Date.now()}_${file.name}`);
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                await updateDoc(doc(db, "users", currentUser.uid), { profilePic: url });
+                currentUser.profilePic = url;
+                document.getElementById('profileAvatar').src = url;
+                await customAlert("Photo updated!", "Success");
+            }
+        };
+        document.getElementById('logoutBtnProfile').onclick = async () => {
+            if(heartbeatInterval) clearInterval(heartbeatInterval);
+            if(unsubscribeNotifications) unsubscribeNotifications();
+            localStorage.removeItem('currentUserUid');
+            window.location.reload();
+        };
+    }
+    async function verifyIdentity() {
+        await updateDoc(doc(db, "users", currentUser.uid), { verified: true });
+        await customAlert("Identity verified! You can now chat.", "Verified");
+        renderProfileUI();
+    }
+    async function showAdminLogin() {
+        const pwd = await customPrompt("Admin password:", "", "Admin Login");
+        if(pwd === 'Crains'){ isAdminLoggedIn = true; renderAdminPanel(); }
+        else await customAlert("Wrong password", "Error");
+    }
+    async function submitAppealPrompt() {
+        const reason = await customPrompt("Why should we unban you?", "", "Appeal");
+        if(reason) await submitAppeal(reason);
+    }
+    function loadEditProfile() {
+        document.getElementById('editName').value = currentUser.name;
+        document.getElementById('editBio').value = currentUser.bio || "";
+        document.getElementById('editGender').value = currentUser.gender;
+        document.getElementById('editAge').value = currentUser.age;
+        document.getElementById('editLocation').value = currentUser.location || "";
+        const interests = currentUser.interests || [];
+        const container = document.getElementById('interestsContainer');
+        function renderTags() { container.innerHTML = interests.map((tag,i) => `<span class="tag">${tag} <i class="fas fa-times-circle remove-tag" data-index="${i}"></i></span>`).join(''); }
+        renderTags();
+        document.getElementById('newInterestInput').onkeypress = (e) => { if(e.key === 'Enter' && e.target.value.trim()){ interests.push(e.target.value.trim()); renderTags(); e.target.value = ''; } };
+        document.getElementById('saveProfileChanges').onclick = async () => {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                name: document.getElementById('editName').value,
+                bio: document.getElementById('editBio').value,
+                gender: document.getElementById('editGender').value,
+                age: parseInt(document.getElementById('editAge').value),
+                location: document.getElementById('editLocation').value,
+                interests: interests,
+                intent: document.getElementById('editIntent').value
+            });
+            currentUser = (await getDoc(doc(db, "users", currentUser.uid))).data();
+            await customAlert("Profile updated", "Success");
+            document.getElementById('backFromEdit').click();
+        };
+        document.getElementById('backFromEdit').onclick = () => { document.getElementById('editProfileView').style.display = 'none'; document.getElementById('profileView').classList.add('active-view'); renderProfileUI(); };
+    }
+    function showSettingsDetail(section) {
+        document.getElementById('profileView').classList.remove('active-view');
+        document.getElementById('settingsDetailView').style.display = 'block';
+        document.getElementById('settingsTitle').innerText = section;
+        let content = '';
+        if(section === 'account') content = `<div class="settings-item" id="changeEmailBtn"><div>Change email/phone</div><i class="fas fa-chevron-right"></i></div><div class="settings-item" id="updatePasswordBtn"><div>Update password</div><i class="fas fa-chevron-right"></i></div><div class="settings-item" id="emailVerificationBtn"><div>Email Verification</div><i class="fas fa-envelope"></i></div>`;
+        else if(section === 'privacy') content = `<div class="settings-item"><div>Last seen</div><div class="toggle-switch ${currentUser.privacyLastSeen !== false ? 'active' : ''}" id="lastSeenToggle"><div class="toggle-knob"></div></div></div><div class="settings-item"><div>Online status</div><div class="toggle-switch ${currentUser.privacyOnlineStatus !== false ? 'active' : ''}" id="onlineStatusToggle"><div class="toggle-knob"></div></div></div><div class="settings-item" id="blockedUsersBtn"><div>Blocked users</div><i class="fas fa-chevron-right"></i></div><div id="blockedUsersList"></div>`;
+        else if(section === 'dating') content = `<div class="settings-item"><div>Age preference</div><div class="dual-slider-container"><div class="range-values"><span>Min: <span id="minAgeVal">${currentUser.prefAgeMin||18}</span></span><span>Max: <span id="maxAgeVal">${currentUser.prefAgeMax||100}</span></span></div><input type="range" id="minAgeSlider" min="18" max="60" value="${currentUser.prefAgeMin||18}"><input type="range" id="maxAgeSlider" min="18" max="60" value="${currentUser.prefAgeMax||100}"></div></div><div class="settings-item"><div>Distance preference</div><input type="range" id="distancePrefSlider" min="5" max="100" value="${currentUser.prefDistance||50}"><span id="distancePrefVal">${currentUser.prefDistance||50}</span> km</div><button class="small-glass" id="savePrefsBtn">Save Preferences</button>`;
+        else if(section === 'premium') content = `<div class="premium-card"><i class="fas fa-crown"></i><h3>Premium Features</h3><div><strong>Gold ($3.27/month)</strong><br>✓ Unlimited swipes<br>✓ See who liked you<br><br><strong>Platinum ($12.99/month)</strong><br>✓ All Gold<br>✓ Read receipts<br>✓ Profile boost</div><button class="gradient-btn" id="subscribeGoldBtn">Subscribe to Gold</button><button class="gradient-btn" id="subscribePlatinumBtn">Subscribe to Platinum</button></div>`;
+        else content = `<div class="settings-item">FAQ</div><div class="settings-item">Contact support</div>`;
+        document.getElementById('settingsDetailContent').innerHTML = content;
+        if(section === 'account') {
+            document.getElementById('changeEmailBtn')?.addEventListener('click', async () => { const newEmail = await customPrompt("New email:", "", "Change Email"); if(newEmail) updateEmail(auth.currentUser, newEmail).then(()=>customAlert("Email updated", "Success")).catch(err=>customAlert(err.message, "Error")); });
+            document.getElementById('updatePasswordBtn')?.addEventListener('click', async () => { const newPwd = await customPrompt("New password:", "", "Change Password"); if(newPwd) updatePassword(auth.currentUser, newPwd).then(()=>customAlert("Password updated", "Success")).catch(err=>customAlert(err.message, "Error")); });
+            document.getElementById('emailVerificationBtn')?.addEventListener('click', async () => { sendEmailVerification(auth.currentUser).then(()=>customAlert("Verification email sent", "Email")); });
+        }
+        if(section === 'privacy') {
+            document.getElementById('lastSeenToggle')?.addEventListener('click', async (e) => { e.stopPropagation(); const active = document.getElementById('lastSeenToggle').classList.toggle('active'); await updateDoc(doc(db,"users",currentUser.uid),{ privacyLastSeen: active }); });
+            document.getElementById('onlineStatusToggle')?.addEventListener('click', async (e) => { e.stopPropagation(); const active = document.getElementById('onlineStatusToggle').classList.toggle('active'); await updateDoc(doc(db,"users",currentUser.uid),{ privacyOnlineStatus: active }); });
+            document.getElementById('blockedUsersBtn')?.addEventListener('click', async () => {
+                const blockedUsers = await Promise.all((currentUser.blocked||[]).map(async uid => (await getDoc(doc(db,"users",uid))).data()));
+                document.getElementById('blockedUsersList').innerHTML = blockedUsers.map(u => `<div class="blocked-user-item"><span>${u?.name||uid}</span><button class="small-glass unblock-btn" data-id="${uid}">Unblock</button></div>`).join('');
+                document.querySelectorAll('.unblock-btn').forEach(btn => btn.addEventListener('click', async () => {
+                    const newBlocked = (currentUser.blocked||[]).filter(id => id !== btn.dataset.id);
+                    await updateDoc(doc(db,"users",currentUser.uid),{ blocked: newBlocked });
+                    currentUser.blocked = newBlocked;
+                    document.getElementById('blockedUsersBtn').click();
+                }));
+            });
+        }
+        if(section === 'dating') {
+            const minSlider = document.getElementById('minAgeSlider'), maxSlider = document.getElementById('maxAgeSlider'), distSlider = document.getElementById('distancePrefSlider');
+            minSlider.oninput = () => document.getElementById('minAgeVal').innerText = minSlider.value;
+            maxSlider.oninput = () => document.getElementById('maxAgeVal').innerText = maxSlider.value;
+            distSlider.oninput = () => document.getElementById('distancePrefVal').innerText = distSlider.value;
+            document.getElementById('savePrefsBtn').onclick = async () => {
+                await updateDoc(doc(db,"users",currentUser.uid),{ prefAgeMin: parseInt(minSlider.value), prefAgeMax: parseInt(maxSlider.value), prefDistance: parseInt(distSlider.value) });
+                await customAlert("Preferences saved", "Success");
+            };
+        }
+        if(section === 'premium') {
+            document.getElementById('subscribeGoldBtn')?.addEventListener('click', () => upgradeToPremium(currentUser.uid, 'gold'));
+            document.getElementById('subscribePlatinumBtn')?.addEventListener('click', () => upgradeToPremium(currentUser.uid, 'platinum'));
+        }
+        document.getElementById('backFromSettings').onclick = () => { document.getElementById('settingsDetailView').style.display = 'none'; document.getElementById('profileView').classList.add('active-view'); renderProfileUI(); };
+    }
+    async function upgradeToPremium(userId, plan) {
+        const expiresAt = Date.now() + 30*24*60*60*1000;
+        let features = {};
+        if(plan === 'gold') features = { unlimitedSwipes: true, seeWhoLikedYou: true, readReceipts: false, boost: false };
+        else features = { unlimitedSwipes: true, seeWhoLikedYou: true, readReceipts: true, boost: true };
+        await updateDoc(doc(db, "users", userId), { isPremium: true, premiumPlan: plan, premiumExpiresAt: expiresAt, features });
+        await customAlert(`Upgraded to ${plan.toUpperCase()}!`, "Premium");
+        currentUser = (await getDoc(doc(db, "users", userId))).data();
+        renderProfileUI();
+    }
+    function showUpgradeModal() {
+        const modal = document.createElement('div'); modal.className = 'upgrade-modal';
+        modal.innerHTML = `<h3>Choose Plan</h3><div class="upgrade-plan" data-plan="gold"><strong>Gold – $3.27/month</strong><br>Unlimited swipes + See who liked you</div><div class="upgrade-plan" data-plan="platinum"><strong>Platinum – $12.99/month</strong><br>All Gold + Read receipts + Boost</div><button class="small-glass" id="closeUpgradeModal">Cancel</button>`;
+        document.body.appendChild(modal);
+        modal.querySelectorAll('.upgrade-plan').forEach(btn => btn.addEventListener('click', async () => {
+            await upgradeToPremium(currentUser.uid, btn.dataset.plan);
+            modal.remove();
+        }));
+        modal.querySelector('#closeUpgradeModal').onclick = () => modal.remove();
+    }
+    function attachNavEvents() {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', async () => {
+                const viewId = item.dataset.nav;
+                document.querySelectorAll('.view').forEach(v => v.classList.remove('active-view'));
+                document.getElementById(viewId + 'View').classList.add('active-view');
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                if(viewId === 'messages') { document.getElementById('chatListContainer').style.display = 'block'; document.getElementById('chatScreenContainer').style.display = 'none'; if(unsubscribeMessages) unsubscribeMessages(); await renderChatList(); }
+                if(viewId === 'explore') await renderExplore();
+                if(viewId === 'profile') await renderProfileUI();
+                if(viewId === 'swipe') await renderSwipeCards();
+                document.getElementById('editProfileView').style.display = 'none';
+                document.getElementById('settingsDetailView').style.display = 'none';
+            });
+        });
+        document.querySelector('.nav-item[data-nav="swipe"]').classList.add('active');
+    }
+    async function showMainApp() {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('signupView').style.display = 'none';
+        document.getElementById('mainApp').style.display = 'block';
+        await loadCurrentUser();
+        if(unsubscribeUser) unsubscribeUser();
+        const userRef = doc(db, "users", currentUser.uid);
+        unsubscribeUser = onSnapshot(userRef, (docSnap) => { if(docSnap.exists()) { currentUser = docSnap.data(); renderProfileUI(); renderSwipeCards(); renderExplore(); renderChatList(); } });
+        await renderAll();
+        attachNavEvents();
+        await renderSwipeCards();
+        renderChatList();
+        startHeartbeat();
+        await updateLastSeen();
+        listenForNotifications();
+        window.addEventListener('beforeunload', async () => { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: 0 }); if(heartbeatInterval) clearInterval(heartbeatInterval); if(unsubscribeNotifications) unsubscribeNotifications(); });
+    }
+    async function startHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); heartbeatInterval = setInterval(async () => { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: Date.now() }); }, 30000); }
+    async function updateLastSeen() { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: Date.now() }); }
+    async function loadCurrentUser() { const uid = localStorage.getItem('currentUserUid'); if(uid) currentUser = (await getDoc(doc(db,"users",uid))).data(); }
+    async function renderAll() { await renderProfileUI(); await renderChatList(); await renderExplore(); }
+
+    // UI event binding
+    document.getElementById('goToSignupLink')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('loginView').style.display = 'none'; document.getElementById('signupView').style.display = 'flex'; });
+    document.getElementById('goToLoginLink')?.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('signupView').style.display = 'none'; document.getElementById('loginView').style.display = 'flex'; });
+    document.getElementById('forgotPasswordBtn')?.addEventListener('click', async () => { const email = await customPrompt("Enter your email:", "", "Reset Password"); if(email) sendPasswordResetEmail(auth, email).then(()=>customAlert("Reset email sent", "Email")).catch(err=>customAlert(err.message, "Error")); });
+    document.getElementById('appealBanBtn')?.addEventListener('click', async () => {
+        const email = await customPrompt("Enter your email address:", "", "Appeal Ban");
+        if (!email) return;
+        const usersSnap = await getDocs(query(collection(db, "users"), where("email", "==", email)));
+        if (usersSnap.empty) {
+            await customAlert("No account found with that email.", "Not Found");
+            return;
+        }
+        const userDoc = usersSnap.docs[0];
+        const userData = userDoc.data();
+        if (!userData.banned) {
+            await customAlert("This account is not banned.", "Not Banned");
+            return;
+        }
+        const reason = await customPrompt("Please explain why you should be unbanned:", "", "Appeal Reason");
+        if (reason) {
+            await addDoc(collection(db, "appeals"), { userId: userDoc.id, reason, status: "pending", timestamp: Date.now() });
+            await customAlert("Your appeal has been submitted. We'll review it shortly.", "Appeal Submitted");
+        }
+    });
+    document.getElementById('googleSignInBtn')?.addEventListener('click', async () => { try{ const user=await window.signInWithGoogle(); localStorage.setItem('currentUserUid',user.uid); currentUser=(await getDoc(doc(db,"users",user.uid))).data(); showMainApp(); }catch(err){ await customAlert(err.message, "Error"); } });
+    document.getElementById('googleSignUpBtn')?.addEventListener('click', async () => { try{ const user=await window.signInWithGoogle(); localStorage.setItem('currentUserUid',user.uid); currentUser=(await getDoc(doc(db,"users",user.uid))).data(); showMainApp(); }catch(err){ await customAlert(err.message, "Error"); } });
+    document.getElementById('signupFormElem')?.addEventListener('submit', async (e) => { e.preventDefault(); const name=document.getElementById('signupName').value, email=document.getElementById('signupEmail').value, pwd=document.getElementById('signupPassword').value, confirm=document.getElementById('confirmPwd').value; if(pwd!==confirm){ await customAlert("Passwords mismatch", "Error"); return; } const gender=document.getElementById('signupGender').value, age=document.getElementById('signupAge').value; try{ await window.signupUser(email,pwd,name,age,gender); document.getElementById('signupView').style.display='none'; document.getElementById('loginView').style.display='flex'; }catch(err){ await customAlert("Signup failed: "+err.message, "Error"); } });
+    document.getElementById('loginFormElem')?.addEventListener('submit', async (e) => { e.preventDefault(); const email=document.getElementById('loginEmail').value, pwd=document.getElementById('loginPassword').value; try{ const user=await window.loginUserFirebase(email,pwd); localStorage.setItem('currentUserUid',user.uid); currentUser=(await getDoc(doc(db,"users",user.uid))).data(); showMainApp(); }catch(err){ await customAlert("Login failed: "+err.message, "Error"); } });
+    document.getElementById('uploadIntroBtn')?.addEventListener('click', () => { const file=document.getElementById('introUploadInput').files[0]; if(file) uploadIntro(file); else customAlert("Select a file first", "Error"); });
+    document.getElementById('applyFilterBtn')?.addEventListener('click', () => renderExplore());
+    document.querySelectorAll('.toggle-pwd').forEach(icon=>{ icon.addEventListener('click',function(){ let target=document.getElementById(this.dataset.target); if(target.type==='password') target.type='text'; else target.type='password'; this.classList.toggle('fa-eye');}); });
+
+    if(localStorage.getItem('currentUserUid')) { loadCurrentUser().then(()=>{ if(currentUser) showMainApp(); else document.getElementById('loginView').style.display='flex'; }); } else { document.getElementById('loginView').style.display='flex'; }
+</script>
+<script>
+    if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/service-worker.js")
+            .then(() => console.log("Service Worker Registered"))
+            .catch(err => console.log("SW error", err));
+    }
+</script>
+<textarea id="firebaseRules" style="display:none;">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth.uid == userId;
+    }
+    match /chats/{chatId}/messages/{message} {
+      allow read, write: if request.auth != null;
+    }
+    match /reports/{report} {
+      allow read, write: if request.auth != null;
+    }
+    match /appeals/{appeal} {
+      allow read, write: if request.auth != null;
+    }
+    match /events/{event} {
+      allow read, write: if request.auth != null;
+    }
+    match /profileViews/{view} {
+      allow read, write: if request.auth != null;
+    }
+    match /typing/{doc} {
+      allow read, write: if request.auth != null;
+    }
+    match /notifications/{notification} {
+      allow read: if request.auth.uid == resource.data.toUserId;
+      allow write: if request.auth != null;
+    }
+  }
+}</textarea>
+<button id="downloadRulesBtn" style="position:fixed; bottom:80px; right:16px; z-index:1000; background:#ff4d6d; border-radius:40px; padding:8px 16px; border:none; color:white;">📜 Security Rules</button>
+<script>document.getElementById('downloadRulesBtn').onclick=()=>{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.getElementById('firebaseRules').value],{type:'text/plain'}));a.download='firestore.rules';a.click();URL.revokeObjectURL(a.href);};</script>
+</body>
+</html>
