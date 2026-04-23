@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <!-- Manifest link REMOVED -->
     <meta name="theme-color" content="#ff4d6d">
     <meta name="google-site-verification" content="google6471dee0a647ffc0" />
     <title>CONNECTLY | Complete Dating App</title>
@@ -165,6 +164,9 @@
     </style>
 </head>
 <body>
+<!-- DEBUG: Visible indicator that HTML is loading -->
+<h1 style="color: red; position: fixed; top: 10px; left: 10px; z-index: 99999; background: white; padding: 5px;">✅ PAGE LOADED (HTML OK)</h1>
+
 <div class="bg-overlay"></div>
 
 <!-- LOGIN / SIGNUP -->
@@ -316,6 +318,15 @@
 </div>
 
 <script type="module">
+    // ========== DEBUGGING: Immediate logs ==========
+    console.log('🚀 Script started (module)');
+
+    // Global unhandled rejection handler
+    window.addEventListener('unhandledrejection', event => {
+        console.error('❌ Unhandled Rejection:', event.reason);
+        alert('❌ Unhandled Rejection: ' + event.reason);
+    });
+
     // ========== CUSTOM MODAL SYSTEM (replaces alert/confirm/prompt) ==========
     window.customAlert = (message, title = "Notice") => {
         return new Promise((resolve) => {
@@ -352,11 +363,14 @@
     window.confirm = window.customConfirm;
     window.prompt = window.customPrompt;
 
+    console.log('📦 Importing Firebase modules...');
     // ========== FIREBASE INIT ==========
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, sendPasswordResetEmail, GoogleAuthProvider, signInWithPopup, sendEmailVerification, updateEmail, updatePassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, collection, addDoc, query, orderBy, onSnapshot, writeBatch, where, increment, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    console.log('✅ Firebase modules imported');
 
     const firebaseConfig = {
         apiKey: "AIzaSyCWliI60g90f-Ed4ydFBPbz027fo7N29tI",
@@ -372,6 +386,8 @@
     const storage = getStorage(app);
     const googleProvider = new GoogleAuthProvider();
     googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+    console.log('🔥 Firebase initialized');
 
     let currentUser = null;
     let heartbeatInterval = null;
@@ -410,7 +426,6 @@
                 if (change.type === "added") {
                     const notif = change.doc.data();
                     showNotificationToast(`💖 ${notif.fromName} liked you!`);
-                    // Mark as read after showing
                     updateDoc(doc(db, "notifications", change.doc.id), { read: true });
                 }
             });
@@ -420,7 +435,6 @@
     // ========== AUTH (with ban check) ==========
     window.signupUser = async (email, password, name, age, gender) => {
         try {
-            // Check if email is already banned? We'll check on login, but for signup we can also check if a banned account exists with this email.
             const existingQuery = query(collection(db, "users"), where("email", "==", email));
             const existingSnap = await getDocs(existingQuery);
             if (!existingSnap.empty) {
@@ -592,7 +606,6 @@
             <button class="small-glass" id="adminLogoutBtn">Logout</button>
         `;
 
-        // Ban user search functionality
         document.getElementById('searchUserForBanBtn').addEventListener('click', async () => {
             const searchTerm = document.getElementById('banUserSearchInput').value.trim().toLowerCase();
             if (!searchTerm) return;
@@ -621,7 +634,7 @@
                 if (await customConfirm(`Ban user ${userName}?`, "Confirm Ban")) {
                     await updateDoc(doc(db, "users", userId), { banned: true });
                     await customAlert(`User ${userName} has been banned.`, "Banned");
-                    renderAdminPanel(); // refresh
+                    renderAdminPanel();
                 }
             }));
             document.querySelectorAll('.unban-user-btn').forEach(btn => btn.addEventListener('click', async () => {
@@ -635,7 +648,6 @@
             }));
         });
 
-        // Stats and banned list
         const usersQuery = query(collection(db, "users"));
         const unsubUsers = onSnapshot(usersQuery, (snap) => {
             const users = snap.docs.map(d => d.data());
@@ -653,7 +665,6 @@
         });
         adminUnsubscribes.push(unsubUsers);
         
-        // Appeals and Reports (same as before)
         const appealsQuery = query(collection(db, "appeals"), orderBy("timestamp", "desc"));
         const unsubAppeals = onSnapshot(appealsQuery, (snap) => {
             const appeals = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1175,7 +1186,10 @@
         });
         document.querySelector('.nav-item[data-nav="swipe"]').classList.add('active');
     }
+
+    console.log('📱 Defining showMainApp...');
     async function showMainApp() {
+        console.log('📱 showMainApp called');
         document.getElementById('loginView').style.display = 'none';
         document.getElementById('signupView').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
@@ -1191,10 +1205,15 @@
         await updateLastSeen();
         listenForNotifications();
         window.addEventListener('beforeunload', async () => { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: 0 }); if(heartbeatInterval) clearInterval(heartbeatInterval); if(unsubscribeNotifications) unsubscribeNotifications(); });
+        console.log('✅ showMainApp completed');
     }
     async function startHeartbeat() { if(heartbeatInterval) clearInterval(heartbeatInterval); heartbeatInterval = setInterval(async () => { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: Date.now() }); }, 30000); }
     async function updateLastSeen() { if(currentUser) await updateDoc(doc(db,"users",currentUser.uid),{ lastSeen: Date.now() }); }
-    async function loadCurrentUser() { const uid = localStorage.getItem('currentUserUid'); if(uid) currentUser = (await getDoc(doc(db,"users",uid))).data(); }
+    async function loadCurrentUser() {
+        const uid = localStorage.getItem('currentUserUid');
+        console.log('👤 loadCurrentUser, uid from localStorage:', uid);
+        if(uid) currentUser = (await getDoc(doc(db,"users",uid))).data();
+    }
     async function renderAll() { await renderProfileUI(); await renderChatList(); await renderExplore(); }
 
     // UI event binding
@@ -1229,9 +1248,24 @@
     document.getElementById('applyFilterBtn')?.addEventListener('click', () => renderExplore());
     document.querySelectorAll('.toggle-pwd').forEach(icon=>{ icon.addEventListener('click',function(){ let target=document.getElementById(this.dataset.target); if(target.type==='password') target.type='text'; else target.type='password'; this.classList.toggle('fa-eye');}); });
 
-    if(localStorage.getItem('currentUserUid')) { loadCurrentUser().then(()=>{ if(currentUser) showMainApp(); else document.getElementById('loginView').style.display='flex'; }); } else { document.getElementById('loginView').style.display='flex'; }
+    console.log('🚦 Checking localStorage for currentUserUid...');
+    if(localStorage.getItem('currentUserUid')) {
+        console.log('✅ Found uid, loading user...');
+        loadCurrentUser().then(()=>{
+            if(currentUser) {
+                console.log('👤 User loaded, showing main app');
+                showMainApp();
+            } else {
+                console.log('❌ No user found, showing login');
+                document.getElementById('loginView').style.display='flex';
+            }
+        });
+    } else {
+        console.log('ℹ️ No uid in localStorage, showing login');
+        document.getElementById('loginView').style.display='flex';
+    }
 </script>
-<!-- Service worker registration REMOVED -->
+
 <textarea id="firebaseRules" style="display:none;">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
