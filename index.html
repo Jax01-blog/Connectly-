@@ -2,133 +2,129 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#ff4d6d">
-    <meta name="google-site-verification" content="google6471dee0a647ffc0" />
-    <title>CONNECTLY | Debug</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONNECTLY – Connection Test</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Poppins', sans-serif; }
-        body { min-height: 100vh; background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format') center/cover no-repeat fixed; }
-        .bg-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.25); backdrop-filter: blur(4px); z-index: -1; }
-        /* All other CSS unchanged – keep your full original styles here */
-        /* (I'm compressing the CSS for space; in your actual file keep everything) */
-        .debug-panel { position: fixed; bottom: 10px; left: 10px; right: 10px; background: rgba(0,0,0,0.8); color: #0f0; padding: 12px; border-radius: 20px; font-family: monospace; font-size: 14px; z-index: 99999; border: 2px solid red; text-align: center; }
-        .login-container, .app-main { /* ensure nothing hides debug */ }
+        body { margin: 0; padding: 20px; background: #111; color: white; font-family: sans-serif; }
+        #status { background: #222; border-radius: 16px; padding: 20px; margin: 20px; border: 2px solid #444; white-space: pre-wrap; word-break: break-word; }
+        .banner { background: #0f0; color: #000; padding: 15px; text-align: center; font-weight: bold; font-size: 1.5rem; }
+        button { padding: 16px; margin: 10px; font-size: 1.2rem; border-radius: 40px; border: none; background: #3b82f6; color: white; }
     </style>
 </head>
 <body>
-<div class="bg-overlay"></div>
+    <div class="banner">✅ PAGE LOADED – HTML IS WORKING</div>
+    <div id="status">⏳ Waiting for JavaScript...</div>
+    <button id="testFirebaseBtn">🔌 Test Firebase Connection</button>
+    <button id="loadFullAppBtn" style="display:none;">🚀 Load Full App</button>
 
-<!-- STATUS PANEL (shows on screen) -->
-<div id="debugStatus" class="debug-panel" style="background:black; color:lime; position:fixed; bottom:20px; left:10px; right:10px; padding:15px; border-radius:30px; z-index:99999; text-align:center; font-weight:bold; border:2px solid yellow;">
-    🟡 Loading... (Step 0)
-</div>
-
-<!-- LOGIN / SIGNUP (keep unchanged) -->
-<div id="loginView" class="auth-container">
-    <!-- ... your original login form ... -->
-</div>
-<div id="signupView" class="auth-container" style="display:none;">
-    <!-- ... your original signup form ... -->
-</div>
-
-<!-- MAIN APP -->
-<div id="mainApp" class="app-main">
-    <!-- ... all view containers unchanged ... -->
-</div>
-
-<script type="module">
-    // Simple on‑screen logger for phone
-    function setStatus(msg) {
-        const el = document.getElementById('debugStatus');
-        if(el) el.innerText = msg;
-    }
-    setStatus('🔵 Step 1: Script started');
-
-    // Override alert to also show on screen
-    const originalAlert = window.customAlert || alert;
-    window.alert = function(msg) {
-        setStatus('⚠️ Alert: ' + msg);
-        originalAlert(msg);
-    };
-
-    // Global error handler
-    window.onerror = function(msg, url, line) {
-        setStatus('❌ Error: ' + msg + ' (line ' + line + ')');
-    };
-    window.addEventListener('unhandledrejection', event => {
-        setStatus('❌ Promise error: ' + (event.reason?.message || event.reason));
-    });
-
-    try {
-        setStatus('🔵 Step 2: Importing Firebase...');
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendEmailVerification, updateProfile, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, collection, addDoc, query, orderBy, onSnapshot, writeBatch, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    <script type="module">
+        // Get status display element
+        const statusEl = document.getElementById('status');
+        function log(msg) {
+            console.log(msg);
+            statusEl.innerText += '\n' + msg;
+        }
+        function clearLog() { statusEl.innerText = ''; }
         
-        setStatus('🔵 Step 3: Firebase imports OK');
+        log('📜 Script started (module)');
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyCWliI60g90f-Ed4ydFBPbz027fo7N29tI",
-            authDomain: "ceezy-website.firebaseapp.com",
-            projectId: "ceezy-website",
-            storageBucket: "ceezy-website.appspot.com",
-            messagingSenderId: "59858219268",
-            appId: "1:59858219268:web:placeholder"
-        };
+        // Try to import Firebase
+        try {
+            log('📦 Importing Firebase modules...');
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js");
+            const { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js");
+            const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
+            
+            log('✅ Firebase modules imported');
+            
+            const firebaseConfig = {
+                apiKey: "AIzaSyCWliI60g90f-Ed4ydFBPbz027fo7N29tI",
+                authDomain: "ceezy-website.firebaseapp.com",
+                projectId: "ceezy-website",
+                storageBucket: "ceezy-website.appspot.com",
+                messagingSenderId: "59858219268",
+                appId: "1:59858219268:web:placeholder"
+            };
+            
+            log('🔥 Initializing Firebase...');
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            
+            log('✅ Firebase initialized successfully!');
+            
+            // Make Firebase available globally for testing
+            window.firebaseReady = true;
+            window.auth = auth;
+            window.db = db;
+            
+            document.getElementById('testFirebaseBtn').addEventListener('click', async () => {
+                clearLog();
+                log('🔍 Testing Firebase Auth...');
+                try {
+                    // Try anonymous sign-in or just check if auth works
+                    const provider = new GoogleAuthProvider();
+                    // We'll just test if we can reach Firebase by checking current user
+                    const user = auth.currentUser;
+                    if (user) {
+                        log(`✅ Already signed in as ${user.email || user.uid}`);
+                    } else {
+                        log('ℹ️ No user signed in. You can try Google Sign-In:');
+                        // Add a sign-in button dynamically
+                        const btn = document.createElement('button');
+                        btn.textContent = 'Sign in with Google';
+                        btn.onclick = async () => {
+                            try {
+                                const result = await signInWithPopup(auth, new GoogleAuthProvider());
+                                log(`✅ Signed in as ${result.user.email}`);
+                                // Check Firestore
+                                const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+                                if (userDoc.exists()) {
+                                    log('✅ Firestore user document exists');
+                                } else {
+                                    log('ℹ️ Firestore user document not found');
+                                }
+                            } catch(e) {
+                                log('❌ Google Sign-In error: ' + e.message);
+                            }
+                        };
+                        statusEl.parentNode.insertBefore(btn, statusEl.nextSibling);
+                    }
+                    
+                    // Also test Firestore read
+                    try {
+                        const testDoc = await getDoc(doc(db, 'users', 'test'));
+                        log('✅ Firestore read test OK (doc exists: ' + testDoc.exists() + ')');
+                    } catch(e) {
+                        log('❌ Firestore read error: ' + e.message);
+                    }
+                    
+                } catch(e) {
+                    log('❌ Firebase test error: ' + e.message);
+                }
+            });
+            
+            document.getElementById('loadFullAppBtn').style.display = 'inline-block';
+            document.getElementById('loadFullAppBtn').addEventListener('click', () => {
+                log('➡️ Attempting to load full app...');
+                // Redirect to full app (you could also dynamically load it)
+                // For now, we just indicate readiness
+                log('✅ Ready to load full app. (Replace this with actual app)');
+                // If you want, you can load the real app by removing this debug page and injecting the real app.
+            });
+            
+            log('🎉 All systems nominal. You can now test Firebase or load the full app.');
+            
+        } catch(e) {
+            log('💥 FATAL ERROR during import/init: ' + e.message);
+            console.error(e);
+        }
         
-        setStatus('🔵 Step 4: Initializing Firebase...');
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-        const googleProvider = new GoogleAuthProvider();
-        
-        setStatus('🟢 Step 5: Firebase ready');
-        
-        // ===== SIMPLIFIED VERSION: ONLY SHOW LOGIN SCREEN =====
-        // We'll strip down to minimal functionality to see if basic UI works
-        
-        // Show login view immediately (skip localStorage check for now)
-        document.getElementById('loginView').style.display = 'flex';
-        document.getElementById('signupView').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'none';
-        
-        setStatus('✅ Firebase loaded! Login screen should be visible.');
-        
-        // Minimal login test
-        window.testLogin = async () => {
-            const email = prompt("Enter test email (must exist)");
-            const pwd = prompt("Password");
-            try {
-                await signInWithEmailAndPassword(auth, email, pwd);
-                setStatus('✅ Login success!');
-                // Show main app
-                document.getElementById('loginView').style.display = 'none';
-                document.getElementById('mainApp').style.display = 'block';
-                // Initialize a basic user object
-                window.currentUser = { uid: auth.currentUser.uid, name: auth.currentUser.displayName || 'User' };
-            } catch(e) {
-                setStatus('❌ Login failed: ' + e.message);
-            }
-        };
-        
-        // Attach quick test buttons (optional)
-        const btn = document.createElement('button');
-        btn.textContent = 'Quick Test Login';
-        btn.style.position = 'fixed'; btn.style.top = '60px'; btn.style.right = '10px';
-        btn.style.zIndex = '99999'; btn.style.padding = '10px';
-        btn.onclick = window.testLogin;
-        document.body.appendChild(btn);
-        
-        // Also add a sign-up test (if needed)
-        
-    } catch(e) {
-        setStatus('💥 FATAL ERROR: ' + e.message);
-    }
-</script>
-
-<!-- Note: The full original code is omitted above for brevity; you should use your existing full HTML but with the debug panel and early logs. -->
+        // Fallback in case module fails early
+        window.onerror = (msg) => { log('❌ Global error: ' + msg); };
+    </script>
+    <noscript>
+        <div style="color:red;">JavaScript is disabled or failed to load.</div>
+    </noscript>
+</body>
+</html>
