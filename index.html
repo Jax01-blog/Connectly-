@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <link rel="manifest" href="manifest.json">
+    <!-- Manifest link REMOVED -->
     <meta name="theme-color" content="#ff4d6d">
     <meta name="google-site-verification" content="google6471dee0a647ffc0" />
     <title>CONNECTLY | Complete Dating App</title>
@@ -1231,13 +1231,7 @@
 
     if(localStorage.getItem('currentUserUid')) { loadCurrentUser().then(()=>{ if(currentUser) showMainApp(); else document.getElementById('loginView').style.display='flex'; }); } else { document.getElementById('loginView').style.display='flex'; }
 </script>
-<script>
-    if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("/service-worker.js")
-            .then(() => console.log("Service Worker Registered"))
-            .catch(err => console.log("SW error", err));
-    }
-</script>
+<!-- Service worker registration REMOVED -->
 <textarea id="firebaseRules" style="display:none;">rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
