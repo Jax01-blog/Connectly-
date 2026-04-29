@@ -189,7 +189,7 @@
                 <input type="password" id="loginPassword" placeholder="Password">
                 <i class="fas fa-eye-slash toggle-pwd" data-target="loginPassword"></i>
             </div>
-            <!-- NEW: Referral code input (optional) on login -->
+            <!-- Referral code (optional) on login -->
             <div class="input-group" id="loginReferralGroup" style="display:none;">
                 <i class="fas fa-gift input-icon"></i>
                 <input type="text" id="loginReferralCode" placeholder="Referral Code (optional)">
@@ -214,7 +214,7 @@
             <div class="input-group"><i class="fas fa-check-circle input-icon"></i><input type="password" id="confirmPwd" placeholder="Confirm password"></div>
             <div class="input-group"><i class="fas fa-venus-mars input-icon"></i><select id="signupGender"><option>Female</option><option>Male</option></select></div>
             <div class="input-group"><i class="fas fa-calendar input-icon"></i><input type="number" id="signupAge" placeholder="Age"></div>
-            <!-- NEW: Referral code input on signup -->
+            <!-- Referral Code (optional) -->
             <div class="input-group">
                 <i class="fas fa-gift input-icon"></i>
                 <input type="text" id="signupReferralCode" placeholder="Referral Code (optional)">
@@ -228,7 +228,7 @@
     </div>
 </div>
 
-<!-- MAIN APP (unchanged containers) -->
+<!-- MAIN APP -->
 <div id="mainApp" class="app-main">
     <div id="swipeView" class="view">
         <h2 style="color:white; text-align:center;">Swipe</h2>
@@ -330,7 +330,7 @@
 </div>
 
 <script type="module">
-    // ========== CUSTOM MODAL SYSTEM (replaces alert/confirm/prompt) ==========
+    // ========== CUSTOM MODAL SYSTEM ==========
     window.customAlert = (message, title = "Notice") => {
         return new Promise((resolve) => {
             const modal = document.createElement('div');
@@ -396,51 +396,48 @@
     let adminUnsubscribes = [];
     let unsubscribeNotifications = null;
 
-    // ========== REFERRAL HELPER ==========
+    // ========== REFERRAL HELPERS ==========
     function generateReferralCode() {
         return 'r' + Math.random().toString(36).substring(2, 8);
     }
     async function applyReferral(refCode, newUserId) {
-        // Find referrer by referralCode
         const qRef = query(collection(db, "users"), where("referralCode", "==", refCode));
         const snap = await getDocs(qRef);
         if (snap.empty) return false;
         const referrerDoc = snap.docs[0];
         const referrerId = referrerDoc.id;
         const now = Date.now();
-        const premiumDuration = 7 * 24 * 60 * 60 * 1000; // 7 days for referrer
-        const newUserDuration = 3 * 24 * 60 * 60 * 1000; // 3 days for new user
-        // Update referrer
+        const premiumDuration = 7 * 24 * 60 * 60 * 1000;
+        const newUserDuration = 3 * 24 * 60 * 60 * 1000;
         const referrerData = referrerDoc.data();
         const currentExpires = referrerData.premiumExpiresAt || 0;
         const newExpires = Math.max(currentExpires, now) + premiumDuration;
         await updateDoc(doc(db, "users", referrerId), {
-            isPremium: true,
-            premiumPlan: 'gold',
-            premiumExpiresAt: newExpires,
-            features: {
-                unlimitedSwipes: true,
-                seeWhoLikedYou: true,
-                readReceipts: false,
-                boost: false
-            },
+            isPremium: true, premiumPlan: 'gold', premiumExpiresAt: newExpires,
+            features: { unlimitedSwipes: true, seeWhoLikedYou: true, readReceipts: false, boost: false },
             verified: true
         });
-        // Update new user
-        const newUserExpires = now + newUserDuration;
         await updateDoc(doc(db, "users", newUserId), {
-            isPremium: true,
-            premiumPlan: 'gold',
-            premiumExpiresAt: newUserExpires,
-            features: {
-                unlimitedSwipes: true,
-                seeWhoLikedYou: true,
-                readReceipts: false,
-                boost: false
-            },
+            isPremium: true, premiumPlan: 'gold', premiumExpiresAt: now + newUserDuration,
+            features: { unlimitedSwipes: true, seeWhoLikedYou: true, readReceipts: false, boost: false },
             verified: true
         });
         return true;
+    }
+
+    // ========== NOTIFICATIONS PERMISSION ==========
+    function requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission().then(perm => {
+                console.log('Notification permission:', perm);
+            });
+        }
+    }
+
+    function showBrowserNotification(title, body) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            new Notification(title, { body, icon: 'https://randomuser.me/api/portraits/lego/1.jpg' });
+        }
     }
 
     // ========== REAL LIKES FIX ==========
@@ -450,7 +447,7 @@
         if (snap.exists()) currentUser = snap.data();
     }
 
-    // ========== NOTIFICATION FUNCTION ==========
+    // ========== NOTIFICATIONS (LIKES & MESSAGES) ==========
     function showNotificationToast(message) {
         const toast = document.createElement('div');
         toast.className = 'notification-toast';
@@ -461,12 +458,8 @@
 
     async function sendLikeNotification(fromUserId, toUserId, fromName) {
         await addDoc(collection(db, "notifications"), {
-            toUserId: toUserId,
-            fromUserId: fromUserId,
-            fromName: fromName,
-            type: "like",
-            read: false,
-            timestamp: Date.now()
+            toUserId: toUserId, fromUserId: fromUserId, fromName: fromName,
+            type: "like", read: false, timestamp: Date.now()
         });
     }
 
@@ -478,6 +471,7 @@
                 if (change.type === "added") {
                     const notif = change.doc.data();
                     showNotificationToast(`💖 ${notif.fromName} liked you!`);
+                    showBrowserNotification('New Like!', `${notif.fromName} liked you!`);
                     updateDoc(doc(db, "notifications", change.doc.id), { read: true });
                 }
             });
@@ -561,7 +555,7 @@
         } catch (err) { throw err; }
     };
 
-    // ========== QUICK PROFILE MODAL (unchanged) ==========
+    // ========== QUICK PROFILE MODAL ==========
     async function showQuickProfile(userId) {
         const userDoc = await getDoc(doc(db, "users", userId));
         if (!userDoc.exists()) return;
@@ -761,7 +755,7 @@
         };
     }
 
-    // ========== CORE APP FUNCTIONS (with refresh after swipe) ==========
+    // ========== CORE APP FUNCTIONS (with likes fix) ==========
     async function getAvailableProfiles() {
         const users = await getDocs(collection(db, "users"));
         return users.docs.map(d => d.data()).filter(u => 
@@ -1028,6 +1022,15 @@
                 return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><div class="message-text">${msg.text}</div><div class="message-time">${time} ${statusHtml}</div></div>`;
             }).join('');
             messagesArea.scrollTop = messagesArea.scrollHeight;
+            // Show notification for new incoming messages if chat not open
+            snapshot.docChanges().forEach(change => {
+                if (change.type === "added") {
+                    const msg = change.doc.data();
+                    if (msg.senderId !== currentUser.uid && currentChatPartner !== msg.senderId) {
+                        showBrowserNotification('New Message', `${partner.name}: ${msg.text}`);
+                    }
+                }
+            });
             const batch = writeBatch(db);
             messages.forEach(msg => {
                 if(msg.senderId === partnerId && !msg.read) {
@@ -1095,53 +1098,167 @@
             else showSettingsDetail(key);
         }));
         function copyReferralLink() {
-            const link = `https://sakala.qd.je?ref=${currentUser.referralCode}`;
+            const link = `https://ceezy-website.web.app?ref=${currentUser.referralCode}`;
             navigator.clipboard?.writeText(link).then(() => customAlert("Referral link copied!", "Referral"));
         }
-        // ... rest of edit profile, etc., unchanged
+        document.getElementById('editProfileBtn').onclick = () => { document.getElementById('profileView').classList.remove('active-view'); document.getElementById('editProfileView').style.display = 'block'; loadEditProfile(); };
+        document.getElementById('shareProfileBtn').onclick = async () => await customAlert("Share profile link (demo)", "Share");
+        document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoUploadInput').click();
+        document.getElementById('photoUploadInput').onchange = async (e) => {
+            if(e.target.files[0]){
+                const file = e.target.files[0];
+                const storageRef = ref(storage, `profilePics/${currentUser.uid}/${Date.now()}_${file.name}`);
+                await uploadBytes(storageRef, file);
+                const url = await getDownloadURL(storageRef);
+                await updateDoc(doc(db, "users", currentUser.uid), { profilePic: url });
+                currentUser.profilePic = url;
+                document.getElementById('profileAvatar').src = url;
+                await customAlert("Photo updated!", "Success");
+            }
+        };
+        document.getElementById('logoutBtnProfile').onclick = async () => {
+            if(heartbeatInterval) clearInterval(heartbeatInterval);
+            if(unsubscribeNotifications) unsubscribeNotifications();
+            localStorage.removeItem('currentUserUid');
+            window.location.reload();
+        };
+    }
+    async function verifyIdentity() {
+        await updateDoc(doc(db, "users", currentUser.uid), { verified: true });
+        await customAlert("Identity verified! You can now chat.", "Verified");
+        renderProfileUI();
+    }
+    async function showAdminLogin() {
+        const pwd = await customPrompt("Admin password:", "", "Admin Login");
+        if(pwd === 'Crains'){ isAdminLoggedIn = true; renderAdminPanel(); }
+        else await customAlert("Wrong password", "Error");
+    }
+    async function submitAppealPrompt() {
+        const reason = await customPrompt("Why should we unban you?", "", "Appeal");
+        if(reason) await submitAppeal(reason);
+    }
+    function loadEditProfile() {
+        document.getElementById('editName').value = currentUser.name;
+        document.getElementById('editBio').value = currentUser.bio || "";
+        document.getElementById('editGender').value = currentUser.gender;
+        document.getElementById('editAge').value = currentUser.age;
+        document.getElementById('editLocation').value = currentUser.location || "";
+        const interests = currentUser.interests || [];
+        const container = document.getElementById('interestsContainer');
+        function renderTags() { container.innerHTML = interests.map((tag,i) => `<span class="tag">${tag} <i class="fas fa-times-circle remove-tag" data-index="${i}"></i></span>`).join(''); }
+        renderTags();
+        document.getElementById('newInterestInput').onkeypress = (e) => { if(e.key === 'Enter' && e.target.value.trim()){ interests.push(e.target.value.trim()); renderTags(); e.target.value = ''; } };
+        document.getElementById('saveProfileChanges').onclick = async () => {
+            await updateDoc(doc(db, "users", currentUser.uid), {
+                name: document.getElementById('editName').value,
+                bio: document.getElementById('editBio').value,
+                gender: document.getElementById('editGender').value,
+                age: parseInt(document.getElementById('editAge').value),
+                location: document.getElementById('editLocation').value,
+                interests: interests,
+                intent: document.getElementById('editIntent').value
+            });
+            currentUser = (await getDoc(doc(db, "users", currentUser.uid))).data();
+            await customAlert("Profile updated", "Success");
+            document.getElementById('backFromEdit').click();
+        };
+        document.getElementById('backFromEdit').onclick = () => { document.getElementById('editProfileView').style.display = 'none'; document.getElementById('profileView').classList.add('active-view'); renderProfileUI(); };
+    }
+    function showSettingsDetail(section) {
+        document.getElementById('profileView').classList.remove('active-view');
+        document.getElementById('settingsDetailView').style.display = 'block';
+        document.getElementById('settingsTitle').innerText = section;
+        let content = '';
+        if(section === 'account') content = `<div class="settings-item" id="changeEmailBtn"><div>Change email/phone</div><i class="fas fa-chevron-right"></i></div><div class="settings-item" id="updatePasswordBtn"><div>Update password</div><i class="fas fa-chevron-right"></i></div><div class="settings-item" id="emailVerificationBtn"><div>Email Verification</div><i class="fas fa-envelope"></i></div>`;
+        else if(section === 'privacy') content = `<div class="settings-item"><div>Last seen</div><div class="toggle-switch ${currentUser.privacyLastSeen !== false ? 'active' : ''}" id="lastSeenToggle"><div class="toggle-knob"></div></div></div><div class="settings-item"><div>Online status</div><div class="toggle-switch ${currentUser.privacyOnlineStatus !== false ? 'active' : ''}" id="onlineStatusToggle"><div class="toggle-knob"></div></div></div><div class="settings-item" id="blockedUsersBtn"><div>Blocked users</div><i class="fas fa-chevron-right"></i></div><div id="blockedUsersList"></div>`;
+        else if(section === 'dating') content = `<div class="settings-item"><div>Age preference</div><div class="dual-slider-container"><div class="range-values"><span>Min: <span id="minAgeVal">${currentUser.prefAgeMin||18}</span></span><span>Max: <span id="maxAgeVal">${currentUser.prefAgeMax||100}</span></span></div><input type="range" id="minAgeSlider" min="18" max="60" value="${currentUser.prefAgeMin||18}"><input type="range" id="maxAgeSlider" min="18" max="60" value="${currentUser.prefAgeMax||100}"></div></div><div class="settings-item"><div>Distance preference</div><input type="range" id="distancePrefSlider" min="5" max="100" value="${currentUser.prefDistance||50}"><span id="distancePrefVal">${currentUser.prefDistance||50}</span> km</div><button class="small-glass" id="savePrefsBtn">Save Preferences</button>`;
+        else if(section === 'premium') content = `<div class="premium-card"><i class="fas fa-crown"></i><h3>Premium Features</h3><div><strong>Gold ($3.27/month)</strong><br>✓ Unlimited swipes<br>✓ See who liked you<br><br><strong>Platinum ($12.99/month)</strong><br>✓ All Gold<br>✓ Read receipts<br>✓ Profile boost</div><button class="gradient-btn" id="subscribeGoldBtn">Subscribe to Gold</button><button class="gradient-btn" id="subscribePlatinumBtn">Subscribe to Platinum</button></div>`;
+        else content = `<div class="settings-item">FAQ</div><div class="settings-item">Contact support</div>`;
+        document.getElementById('settingsDetailContent').innerHTML = content;
+        if(section === 'account') {
+            document.getElementById('changeEmailBtn')?.addEventListener('click', async () => { const newEmail = await customPrompt("New email:", "", "Change Email"); if(newEmail) updateEmail(auth.currentUser, newEmail).then(()=>customAlert("Email updated", "Success")).catch(err=>customAlert(err.message, "Error")); });
+            document.getElementById('updatePasswordBtn')?.addEventListener('click', async () => { const newPwd = await customPrompt("New password:", "", "Change Password"); if(newPwd) updatePassword(auth.currentUser, newPwd).then(()=>customAlert("Password updated", "Success")).catch(err=>customAlert(err.message, "Error")); });
+            document.getElementById('emailVerificationBtn')?.addEventListener('click', async () => { sendEmailVerification(auth.currentUser).then(()=>customAlert("Verification email sent", "Email")); });
+        }
+        if(section === 'privacy') {
+            document.getElementById('lastSeenToggle')?.addEventListener('click', async (e) => { e.stopPropagation(); const active = document.getElementById('lastSeenToggle').classList.toggle('active'); await updateDoc(doc(db,"users",currentUser.uid),{ privacyLastSeen: active }); });
+            document.getElementById('onlineStatusToggle')?.addEventListener('click', async (e) => { e.stopPropagation(); const active = document.getElementById('onlineStatusToggle').classList.toggle('active'); await updateDoc(doc(db,"users",currentUser.uid),{ privacyOnlineStatus: active }); });
+            document.getElementById('blockedUsersBtn')?.addEventListener('click', async () => {
+                const blockedUsers = await Promise.all((currentUser.blocked||[]).map(async uid => (await getDoc(doc(db,"users",uid))).data()));
+                document.getElementById('blockedUsersList').innerHTML = blockedUsers.map(u => `<div class="blocked-user-item"><span>${u?.name||uid}</span><button class="small-glass unblock-btn" data-id="${uid}">Unblock</button></div>`).join('');
+                document.querySelectorAll('.unblock-btn').forEach(btn => btn.addEventListener('click', async () => {
+                    const newBlocked = (currentUser.blocked||[]).filter(id => id !== btn.dataset.id);
+                    await updateDoc(doc(db,"users",currentUser.uid),{ blocked: newBlocked });
+                    currentUser.blocked = newBlocked;
+                    document.getElementById('blockedUsersBtn').click();
+                }));
+            });
+        }
+        if(section === 'dating') {
+            const minSlider = document.getElementById('minAgeSlider'), maxSlider = document.getElementById('maxAgeSlider'), distSlider = document.getElementById('distancePrefSlider');
+            minSlider.oninput = () => document.getElementById('minAgeVal').innerText = minSlider.value;
+            maxSlider.oninput = () => document.getElementById('maxAgeVal').innerText = maxSlider.value;
+            distSlider.oninput = () => document.getElementById('distancePrefVal').innerText = distSlider.value;
+            document.getElementById('savePrefsBtn').onclick = async () => {
+                await updateDoc(doc(db,"users",currentUser.uid),{ prefAgeMin: parseInt(minSlider.value), prefAgeMax: parseInt(maxSlider.value), prefDistance: parseInt(distSlider.value) });
+                await customAlert("Preferences saved", "Success");
+            };
+        }
+        if(section === 'premium') {
+            document.getElementById('subscribeGoldBtn')?.addEventListener('click', () => upgradeToPremium(currentUser.uid, 'gold'));
+            document.getElementById('subscribePlatinumBtn')?.addEventListener('click', () => upgradeToPremium(currentUser.uid, 'platinum'));
+        }
+        document.getElementById('backFromSettings').onclick = () => { document.getElementById('settingsDetailView').style.display = 'none'; document.getElementById('profileView').classList.add('active-view'); renderProfileUI(); };
+    }
+    async function upgradeToPremium(userId, plan) {
+        const expiresAt = Date.now() + 30*24*60*60*1000;
+        let features = {
+            unlimitedSwipes: true,
+            seeWhoLikedYou: true,
+            readReceipts: plan === 'platinum',
+            boost: plan === 'platinum'
+        };
+        await updateDoc(doc(db, "users", userId), {
+            isPremium: true, premiumPlan: plan, premiumExpiresAt: expiresAt,
+            features,
+            verified: true
+        });
+        await refreshCurrentUser();
+        await customAlert(`Upgraded to ${plan.toUpperCase()}!`, "Premium");
+        renderProfileUI();
+    }
+    function showUpgradeModal() {
+        const modal = document.createElement('div'); modal.className = 'upgrade-modal';
+        modal.innerHTML = `<h3>Choose Plan</h3><div class="upgrade-plan" data-plan="gold"><strong>Gold – $3.27/month</strong><br>Unlimited swipes + See who liked you</div><div class="upgrade-plan" data-plan="platinum"><strong>Platinum – $12.99/month</strong><br>All Gold + Read receipts + Boost</div><button class="small-glass" id="closeUpgradeModal">Cancel</button>`;
+        document.body.appendChild(modal);
+        modal.querySelectorAll('.upgrade-plan').forEach(btn => btn.addEventListener('click', async () => {
+            await upgradeToPremium(currentUser.uid, btn.dataset.plan);
+            modal.remove();
+        }));
+        modal.querySelector('#closeUpgradeModal').onclick = () => modal.remove();
     }
 
-    // ========== NEW: INVITE FRIENDS (Contacts API) ==========
+    // ========== NEW: INVITE FRIENDS (Share Sheet) ==========
     async function showContactsInvite() {
-        if (!('contacts' in navigator && 'ContactsManager' in window)) {
-            return customAlert("Contact access is not supported on this device/browser.", "Unavailable");
-        }
-        try {
-            const contacts = await navigator.contacts.select(['email', 'name'], { multiple: true });
-            if (!contacts.length) return;
-            const emails = contacts.filter(c => c.email?.length).map(c => c.email[0]).filter(Boolean);
-            if (!emails.length) return customAlert("No email contacts found.", "No Emails");
-            const usersSnap = await getDocs(collection(db, "users"));
-            const allUsers = usersSnap.docs.map(d => d.data());
-            const existingEmails = new Set(allUsers.map(u => u.email?.toLowerCase()));
-            const newContacts = emails.filter(e => !existingEmails.has(e.toLowerCase()));
-            const modal = document.createElement('div');
-            modal.className = 'custom-modal';
-            modal.innerHTML = `
-                <div class="custom-modal-content">
-                    <h3>Invite Friends</h3>
-                    <div style="max-height:200px; overflow-y:auto; text-align:left;">
-                        ${newContacts.length ? newContacts.map(e => `
-                            <div class="invite-contact-item">
-                                <span>${e}</span>
-                                <button class="small-glass invite-single" data-email="${e}">Invite</button>
-                            </div>`).join('') : '<p>All contacts are already on MEET!</p>'
-                        }
-                    </div>
-                    <div class="custom-modal-buttons">
-                        <button class="cancel-btn" id="closeInviteModal">Close</button>
-                    </div>
-                </div>`;
-            document.body.appendChild(modal);
-            modal.querySelector('#closeInviteModal').onclick = () => modal.remove();
-            modal.querySelectorAll('.invite-single').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const link = `https://sakala.qd.je?ref=${currentUser.referralCode}`;
-                    window.open(`mailto:${btn.dataset.email}?subject=Join+MEET&body=Hey,%20join%20MEET%20using%20my%20link:%20${link}`, '_blank');
-                });
+        const link = `https://ceezy-website.web.app?ref=${currentUser.referralCode}`;
+        const shareData = {
+            title: 'Join MEET',
+            text: 'Check out MEET – where sparks glow! Use my link to sign up and we both get premium.',
+            url: link
+        };
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+            } catch (err) {
+                console.log('Share cancelled', err);
+            }
+        } else {
+            // Fallback: copy to clipboard and give instructions
+            await navigator.clipboard.writeText(link).then(() => {
+                customAlert("Referral link copied to clipboard! Share it via your favorite app.", "Invite Friends");
+            }).catch(() => {
+                customPrompt("Share this link manually:", link, "Invite Friends");
             });
-        } catch (err) {
-            customAlert("Could not access contacts: " + err.message, "Error");
         }
     }
 
@@ -1186,38 +1303,6 @@
         };
     }
 
-    // ========== PREMIUM UPGRADE WITH INSTANT BLUE TICK ==========
-    async function upgradeToPremium(userId, plan) {
-        const expiresAt = Date.now() + 30*24*60*60*1000;
-        let features = {
-            unlimitedSwipes: true,
-            seeWhoLikedYou: true,
-            readReceipts: plan === 'platinum',
-            boost: plan === 'platinum'
-        };
-        await updateDoc(doc(db, "users", userId), {
-            isPremium: true, premiumPlan: plan, premiumExpiresAt: expiresAt,
-            features,
-            verified: true   // instant blue tick
-        });
-        await refreshCurrentUser();
-        await customAlert(`Upgraded to ${plan.toUpperCase()}!`, "Premium");
-        renderProfileUI();
-    }
-    function showUpgradeModal() {
-        const modal = document.createElement('div'); modal.className = 'upgrade-modal';
-        modal.innerHTML = `<h3>Choose Plan</h3><div class="upgrade-plan" data-plan="gold"><strong>Gold – $3.27/month</strong><br>Unlimited swipes + See who liked you</div><div class="upgrade-plan" data-plan="platinum"><strong>Platinum – $12.99/month</strong><br>All Gold + Read receipts + Boost</div><button class="small-glass" id="closeUpgradeModal">Cancel</button>`;
-        document.body.appendChild(modal);
-        modal.querySelectorAll('.upgrade-plan').forEach(btn => btn.addEventListener('click', async () => {
-            await upgradeToPremium(currentUser.uid, btn.dataset.plan);
-            modal.remove();
-        }));
-        modal.querySelector('#closeUpgradeModal').onclick = () => modal.remove();
-    }
-
-    // ========== SETTINGS DETAIL & OTHERS UNCHANGED ==========
-    // ... (all original functions like showSettingsDetail, loadEditProfile, verifyIdentity, etc. remain identical)
-    
     // ========== LIFE-CYCLE ==========
     function attachNavEvents() {
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -1242,6 +1327,7 @@
         document.getElementById('signupView').style.display = 'none';
         document.getElementById('mainApp').style.display = 'block';
         await loadCurrentUser();
+        requestNotificationPermission();
         if(unsubscribeUser) unsubscribeUser();
         const userRef = doc(db, "users", currentUser.uid);
         unsubscribeUser = onSnapshot(userRef, (docSnap) => { if(docSnap.exists()) { currentUser = docSnap.data(); renderProfileUI(); renderSwipeCards(); renderExplore(); renderChatList(); } });
