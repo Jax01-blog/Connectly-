@@ -166,12 +166,125 @@
         .rating-stars { font-size: 2rem; cursor: pointer; color: #ffd700; }
         .rating-stars .star:hover, .rating-stars .star.active { color: #ffa500; }
         .invite-contact-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+        /* ========== NEW: MEET AI CHAT STYLES ========== */
+        .ai-chat-btn {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #a463f2, #6d28d9);
+            color: white;
+            border: none;
+            font-size: 26px;
+            cursor: pointer;
+            z-index: 1100;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s;
+        }
+        .ai-chat-btn:active { transform: scale(0.95); }
+        .ai-chat-window {
+            position: fixed;
+            bottom: 160px;
+            right: 20px;
+            width: 340px;
+            max-width: calc(100vw - 40px);
+            height: 450px;
+            background: rgba(20,20,35,0.85);
+            backdrop-filter: blur(24px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+            z-index: 1099;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .ai-chat-header {
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: 600;
+        }
+        .ai-chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .ai-message {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            word-break: break-word;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        .ai-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #22c55e, #15803d);
+            color: white;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-message.bot {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(4px);
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+        .ai-chat-input-area {
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 8px;
+        }
+        .ai-chat-input-area input {
+            flex: 1;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 30px;
+            padding: 10px 16px;
+            color: white;
+            outline: none;
+        }
+        .ai-chat-input-area button {
+            background: #7c3aed;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+        @media (max-width: 480px) {
+            .ai-chat-window {
+                width: calc(100vw - 20px);
+                right: 10px;
+                bottom: 140px;
+            }
+        }
     </style>
 </head>
 <body>
 <div class="bg-overlay"></div>
 
-<!-- LOGIN / SIGNUP -->
+<!-- ========== ORIGINAL LOGIN/SIGNUP SCREENS ========== -->
 <div id="loginView" class="auth-container">
     <div class="glass-card auth-card">
         <div class="logo-area">
@@ -228,7 +341,7 @@
     </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ========== ORIGINAL MAIN APP ========== -->
 <div id="mainApp" class="app-main">
     <div id="swipeView" class="view">
         <h2 style="color:white; text-align:center;">Swipe</h2>
@@ -326,6 +439,24 @@
         <div class="nav-item" data-nav="explore"><i class="fas fa-compass"></i><span>Explore</span></div>
         <div class="nav-item" data-nav="messages"><i class="fas fa-comment-dots"></i><span>Chats</span></div>
         <div class="nav-item" data-nav="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+    </div>
+</div>
+
+<!-- ========== NEW: MEET AI FLOATING BUTTON & WINDOW ========== -->
+<button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant">
+    <i class="fas fa-robot"></i>
+</button>
+<div class="ai-chat-window" id="aiChatWindow">
+    <div class="ai-chat-header">
+        <span>🤖 MEET AI</span>
+        <i class="fas fa-times" id="closeAiChat" style="cursor:pointer; font-size:1.2rem;"></i>
+    </div>
+    <div class="ai-chat-body" id="aiChatBody">
+        <div class="ai-message bot">Hi! I'm MEET AI. I can help with dating tips, relationship advice, matching suggestions, date ideas, or emotional support. How can I assist you?</div>
+    </div>
+    <div class="ai-chat-input-area">
+        <input type="text" id="aiChatInput" placeholder="Type your message...">
+        <button id="sendAiMsg"><i class="fas fa-paper-plane"></i></button>
     </div>
 </div>
 
@@ -814,8 +945,8 @@
                 await customAlert(`Liked ${target.name}!`, "Like Sent");
             }
             idx++;
-            await refreshCurrentUser();   // FIX: reload user data
-            await renderProfileUI();      // update likes count
+            await refreshCurrentUser();
+            await renderProfileUI();
             await checkDailySwipes();
             if(idx < available.length) display();
             else await renderSwipeCards();
@@ -828,8 +959,8 @@
             swipes.push(available[idx].uid);
             await updateDoc(doc(db, "users", currentUser.uid), { swipes, swipesToday: (currentUser.swipesToday || 0) + 1 });
             idx++;
-            await refreshCurrentUser();   // FIX: reload user data
-            await renderProfileUI();      // update likes count
+            await refreshCurrentUser();
+            await renderProfileUI();
             await checkDailySwipes();
             if(idx < available.length) display();
             else await renderSwipeCards();
@@ -1069,6 +1200,7 @@
         if(currentUser.features?.boost === true) boostBtn.onclick = async () => await customAlert("Boost activated!", "Boost");
         else boostBtn.onclick = async () => await customAlert("Upgrade to Platinum to unlock Boost feature.", "Premium Required");
         
+        // ========== SETTINGS LIST with DELETE ACCOUNT ==========
         const settingsList = [
             { icon: "fas fa-user-circle", title: "Account", key: "account" },
             { icon: "fas fa-lock", title: "Privacy", key: "privacy" },
@@ -1082,7 +1214,8 @@
             { icon: "fas fa-gavel", title: "Appeal Ban", key: "appeal" },
             { icon: "fas fa-link", title: "Copy Referral Link", key: "referral" },
             { icon: "fas fa-address-book", title: "Invite Friends", key: "invite" },
-            { icon: "fas fa-star", title: "Rate App", key: "rate" }
+            { icon: "fas fa-star", title: "Rate App", key: "rate" },
+            { icon: "fas fa-trash-alt", title: "Delete Account", key: "delete" }   // NEW
         ];
         document.getElementById('settingsListContainer').innerHTML = settingsList.map(s => `<div class="settings-item" data-key="${s.key}"><div class="settings-item-left"><i class="${s.icon}"></i><span>${s.title}</span></div><i class="fas fa-chevron-right"></i></div>`).join('');
         document.querySelectorAll('.settings-item').forEach(el => el.addEventListener('click', () => {
@@ -1095,6 +1228,7 @@
             else if(key === 'referral') copyReferralLink();
             else if(key === 'invite') showContactsInvite();
             else if(key === 'rate') showRatingModal();
+            else if(key === 'delete') deleteAccount();   // NEW
             else showSettingsDetail(key);
         }));
         function copyReferralLink() {
@@ -1253,7 +1387,6 @@
                 console.log('Share cancelled', err);
             }
         } else {
-            // Fallback: copy to clipboard and give instructions
             await navigator.clipboard.writeText(link).then(() => {
                 customAlert("Referral link copied to clipboard! Share it via your favorite app.", "Invite Friends");
             }).catch(() => {
@@ -1301,6 +1434,111 @@
             modal.remove();
             customAlert("Thank you! Your email client will open to send the review.", "Review");
         };
+    }
+
+    // ========== NEW: DELETE ACCOUNT ==========
+    async function deleteAccount() {
+        if (!currentUser) return;
+        const confirmed = await customConfirm(
+            "Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently removed.",
+            "Delete Account"
+        );
+        if (!confirmed) return;
+        try {
+            // Delete user document from Firestore
+            await deleteDoc(doc(db, "users", currentUser.uid));
+            // Sign out from Firebase Auth
+            await signOut(auth);
+            localStorage.removeItem('currentUserUid');
+            customAlert("Your account has been deleted. You will be logged out.", "Account Deleted");
+            window.location.reload();
+        } catch (err) {
+            customAlert("Failed to delete account: " + err.message, "Error");
+        }
+    }
+
+    // ========== NEW: MEET AI (Real OpenAI API) ==========
+    const OPENAI_API_KEY = 'YOUR_OPENAI_API_KEY'; // Replace with your real key
+
+    let aiConversation = [
+        { role: "system", content: "You are MEET AI, a helpful assistant in a dating app. Provide dating tips, relationship advice, matching suggestions, date plan ideas, emotional support, and guidance on using the app. Keep answers concise and friendly." }
+    ];
+
+    // Open/close chat with auth check
+    document.getElementById('aiChatToggleBtn').addEventListener('click', () => {
+        if (!currentUser) {
+            customAlert("Please log in to use MEET AI.", "Authentication Required");
+            return;
+        }
+        const win = document.getElementById('aiChatWindow');
+        win.style.display = (win.style.display === 'flex') ? 'none' : 'flex';
+        if (win.style.display === 'flex') document.getElementById('aiChatInput').focus();
+    });
+
+    document.getElementById('closeAiChat').addEventListener('click', () => {
+        document.getElementById('aiChatWindow').style.display = 'none';
+    });
+
+    document.getElementById('sendAiMsg').addEventListener('click', sendAiMessage);
+    document.getElementById('aiChatInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendAiMessage();
+    });
+
+    async function sendAiMessage() {
+        const input = document.getElementById('aiChatInput');
+        const text = input.value.trim();
+        if (!text) return;
+        addAiBubble(text, 'user');
+        aiConversation.push({ role: 'user', content: text });
+        input.value = '';
+
+        // Show typing indicator
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'ai-message bot typing-indicator';
+        typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        const body = document.getElementById('aiChatBody');
+        body.appendChild(typingDiv);
+        body.scrollTop = body.scrollHeight;
+
+        try {
+            const reply = await fetchOpenAIResponse();
+            typingDiv.remove();
+            addAiBubble(reply, 'bot');
+            aiConversation.push({ role: 'assistant', content: reply });
+        } catch (err) {
+            typingDiv.remove();
+            addAiBubble("Sorry, I'm having trouble right now. Please try again later.", 'bot');
+            console.error('AI error:', err);
+        }
+    }
+
+    function addAiBubble(text, sender) {
+        const bubble = document.createElement('div');
+        bubble.className = `ai-message ${sender}`;
+        bubble.textContent = text;
+        document.getElementById('aiChatBody').appendChild(bubble);
+        bubble.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function fetchOpenAIResponse() {
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: aiConversation,
+                temperature: 0.7,
+                max_tokens: 300
+            })
+        });
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        const data = await response.json();
+        return data.choices[0].message.content;
     }
 
     // ========== LIFE-CYCLE ==========
