@@ -267,3 +267,187 @@ input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 18p
         bottom: 140px;
     }
 }
+
+/* ========== MESSAGING SCREEN PREMIUM REDESIGN ========== */
+
+/* Top area container */
+.msg-top-area {
+    padding: 16px 16px 0;
+    background: transparent;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Pill‑shaped search bar with glass effect */
+.msg-search-bar {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 30px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 0 8px rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+}
+.msg-search-bar:focus-within {
+    border-color: rgba(210, 80, 200, 0.6);
+    box-shadow: 0 0 16px rgba(210, 80, 200, 0.2);
+}
+.search-icon {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    margin-right: 10px;
+}
+.filter-icon {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 1rem;
+    margin-left: 10px;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.filter-icon:hover {
+    color: #d250c8;
+}
+.msg-search-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 0.95rem;
+}
+.msg-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* Active users row */
+.active-users-row {
+    display: flex;
+    gap: 18px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;  /* Firefox */
+    margin-bottom: 10px;
+}
+.active-users-row::-webkit-scrollbar {
+    display: none;
+}
+.active-user {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 60px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.active-user:active {
+    transform: scale(1.1);
+}
+.user-avatar-ring {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    padding: 2.5px;
+    background: linear-gradient(135deg, #c44bff, #ff6ec7);
+    box-shadow: 0 0 12px rgba(210, 80, 200, 0.5);
+}
+.active-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(0,0,0,0.3);
+}
+.active-username {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.7rem;
+    margin-top: 4px;
+    white-space: nowrap;
+    max-width: 60px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* ========== CHAT LIST REDESIGN ========== */
+.chat-list-container {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    border-radius: 0 !important;
+    margin-top: 0 !important;
+}
+.chat-list-item {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: 20px;
+    margin: 6px 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s;
+}
+.chat-list-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(210, 80, 200, 0.25);
+}
+.chat-list-item .avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+.chat-list-item .chat-name {
+    font-weight: 600;
+    color: white;
+    font-size: 1rem;
+}
+.chat-list-item .last-msg {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+}
+.chat-list-item .chat-meta .time {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.7rem;
+}
+.unread-badge {
+    background: linear-gradient(135deg, #c44bff, #ff6ec7);
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    border-radius: 12px;
+    box-shadow: 0 0 8px rgba(210, 80, 200, 0.4);
+}
+.online-dot {
+    background: #22c55e;
+    box-shadow: 0 0 6px #22c55e;
+}
+.chat-list-item .block-chat-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.7rem;
+}
+
+/* ========== BOTTOM NAVIGATION ICONS ========== */
+.nav-item .nav-icon {
+    font-size: 1.7rem;
+    transition: all 0.3s;
+}
+.nav-item.active .nav-icon {
+    color: #ff6ec7;
+    text-shadow: 0 0 8px #c44bff, 0 0 16px #ff6ec7;
+}
+.nav-item:not(.active) .nav-icon {
+    color: #777;
+}
+.nav-item span {
+    font-size: 0.65rem;
+    font-weight: 500;
+}
+.nav-item.active span {
+    color: #ff6ec7;
+}
