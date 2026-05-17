@@ -456,17 +456,29 @@ function showReportModal(userId, userName) {
     modal.querySelector('#closeReportModal').onclick = () => modal.remove();
 }
 
-// ========== CHAT LIST (PINK UNREAD DOT) ==========
+// ========== CHAT LIST (PINK UNREAD DOT – ONLY FOR UNREAD) ==========
 async function renderChatList() {
     const container = document.getElementById('chatListContainer');
     const matches = currentUser.matches || [];
     if(matches.length === 0){ container.innerHTML = `<div class="glass-card">No matches yet. Start swiping!</div>`; return; }
     const users = (await db.collection("users").get()).docs.map(d => d.data());
     const matchedUsers = users.filter(u => matches.includes(u.uid) && u.banned !== true);
-    container.innerHTML = matchedUsers.map(m => `
+    
+    // Check unread messages for each match
+    const chatItems = await Promise.all(matchedUsers.map(async (m) => {
+        const chatId = [currentUser.uid, m.uid].sort().join('_');
+        const unreadSnap = await db.collection("chats").doc(chatId).collection("messages")
+            .where("senderId", "==", m.uid)
+            .where("read", "==", false)
+            .get();
+        const hasUnread = !unreadSnap.empty;
+        return { ...m, hasUnread };
+    }));
+
+    container.innerHTML = chatItems.map(m => `
         <div class="chat-list-item" data-id="${m.uid}">
             <div style="position:relative;"><img class="avatar" src="${m.profilePic}">${m.privacyOnlineStatus !== false && (Date.now() - (m.lastSeen||0) < 60000) ? '<span class="online-dot"></span>' : ''}</div>
-            <div class="chat-info"><div class="chat-name">${m.name}${m.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}<span class="unread-dot"></span></div><div class="last-msg">Tap to chat</div></div>
+            <div class="chat-info"><div class="chat-name">${m.name}${m.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}${m.hasUnread ? '<span class="unread-dot"></span>' : ''}</div><div class="last-msg">Tap to chat</div></div>
             <div class="chat-meta"><button class="small-glass block-chat-btn" data-id="${m.uid}">Block</button></div>
         </div>`).join('');
     document.querySelectorAll('.chat-list-item').forEach(el => el.addEventListener('click', (e) => { if(!e.target.classList.contains('block-chat-btn')) openChatScreen(el.dataset.id); }));
@@ -526,13 +538,13 @@ async function openChatScreen(partnerId) {
     const messagesArea = document.getElementById('messagesArea');
 
     // Image upload to Supabase
-    document.getElementById('sendImageBtn').addEventListener('click', async () => {
+    document.getElementById('sendImageBtn').addEventListener('click', () => {
         const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
         input.onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
-            const fileName = `${currentUser.uid}_${Date.now()}_${file.name}`;
+            const fileName = `chat-images/${chatId}/${Date.now()}_${file.name}`;
             const { error } = await supabase.storage.from('chat-images').upload(fileName, file);
-            if (error) { customAlert("Image upload failed", "Error"); return; }
+            if (error) { customAlert("Image upload failed: " + error.message, "Error"); return; }
             const url = supabase.storage.from('chat-images').getPublicUrl(fileName).data.publicUrl;
             await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: url, type: 'image', timestamp: Date.now(), status: "sent", read: false });
         };
@@ -543,21 +555,28 @@ async function openChatScreen(partnerId) {
     let mediaRecorder, audioChunks = [];
     document.getElementById('sendVoiceBtn').addEventListener('click', async () => {
         if (!mediaRecorder || mediaRecorder.state === 'inactive') {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = async () => {
-                const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                const fileName = `${currentUser.uid}_${Date.now()}_voice.webm`;
-                const { error } = await supabase.storage.from('voice-messages').upload(fileName, blob);
-                if (error) { customAlert("Voice upload failed", "Error"); return; }
-                const url = supabase.storage.from('voice-messages').getPublicUrl(fileName).data.publicUrl;
-                await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: url, type: 'voice', timestamp: Date.now(), status: "sent", read: false });
-            };
-            mediaRecorder.start();
-            document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-stop"></i>';
-        } else { mediaRecorder.stop(); document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-microphone"></i>'; }
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+                mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                mediaRecorder.onstop = async () => {
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const fileName = `voice-messages/${chatId}/${Date.now()}_voice.webm`;
+                    const { error } = await supabase.storage.from('voice-messages').upload(fileName, blob);
+                    if (error) { customAlert("Voice upload failed: " + error.message, "Error"); return; }
+                    const url = supabase.storage.from('voice-messages').getPublicUrl(fileName).data.publicUrl;
+                    await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: url, type: 'voice', timestamp: Date.now(), status: "sent", read: false });
+                    document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+                };
+                mediaRecorder.start();
+                document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-stop"></i>';
+            } catch (err) {
+                customAlert("Microphone access denied. Please allow microphone permissions.", "Error");
+            }
+        } else {
+            mediaRecorder.stop();
+        }
     });
 
     const typingRef = db.collection("typing").doc(`${currentUser.uid}_${partnerId}`);
@@ -576,7 +595,7 @@ async function openChatScreen(partnerId) {
         messagesArea.innerHTML = messages.map(msg => {
             const isSent = msg.senderId === currentUser.uid;
             const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-            if (msg.type === 'image') return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><img src="${msg.text}" style="max-width:200px; border-radius:12px;"><div class="message-time">${time}</div></div>`;
+            if (msg.type === 'image') return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><img src="${msg.text}" style="max-width:200px; border-radius:12px; cursor:pointer;" onclick="window.open('${msg.text}')"><div class="message-time">${time}</div></div>`;
             if (msg.type === 'voice') return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><audio controls src="${msg.text}" style="max-width:200px;"></audio><div class="message-time">${time}</div></div>`;
             return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><div class="message-text">${msg.text}</div><div class="message-time">${time}</div></div>`;
         }).join('');
@@ -694,17 +713,18 @@ async function renderProfileUI() {
     document.getElementById('editProfileBtn').onclick = () => { document.getElementById('profileView').classList.remove('active-view'); document.getElementById('editProfileView').style.display = 'block'; loadEditProfile(); };
     document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoUploadInput').click();
 
-    // Profile picture upload via Supabase
+    // Profile picture upload via Supabase (FIXED)
     document.getElementById('photoUploadInput').onchange = async (e) => {
         if(e.target.files[0]){
             const file = e.target.files[0];
             const fileName = `${currentUser.uid}_${Date.now()}_${file.name}`;
-            const { error } = await supabase.storage.from('profile-pictures').upload(fileName, file);
-            if (error) { customAlert("Upload failed", "Error"); return; }
-            const url = supabase.storage.from('profile-pictures').getPublicUrl(fileName).data.publicUrl;
+            const { error } = await supabase.storage.from('profile-pictures').upload(fileName, file, { upsert: true });
+            if (error) { customAlert("Upload failed: " + error.message, "Error"); return; }
+            const { data: urlData } = supabase.storage.from('profile-pictures').getPublicUrl(fileName);
+            const url = urlData.publicUrl;
             await db.collection("users").doc(currentUser.uid).update({ profilePic: url });
             currentUser.profilePic = url;
-            document.getElementById('profileAvatar').src = url;
+            document.getElementById('profileAvatar').src = url + '?t=' + Date.now();
             await customAlert("Photo updated!", "Success");
         }
     };
@@ -849,7 +869,7 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-
 if(localStorage.getItem('currentUserUid')) { loadCurrentUser().then(()=>{ if(currentUser) showMainApp(); else document.getElementById('loginView').style.display='flex'; }); } else { document.getElementById('loginView').style.display='flex'; }
 
 // MEET AI
-const OPENAI_API_KEY = 'sk-';
+const OPENAI_API_KEY = 'sk-proj-';
 let aiConversation = [{ role: "system", content: "You are MEET AI, a helpful assistant in a dating app. Provide dating tips, relationship advice, matching suggestions, date plan ideas, emotional support, and guidance on using the app. Keep answers concise and friendly." }];
 document.getElementById('aiChatToggleBtn').addEventListener('click', () => { if (!currentUser) { customAlert("Please log in to use MEET AI.", "Authentication Required"); return; } const win = document.getElementById('aiChatWindow'); win.style.display = (win.style.display === 'flex') ? 'none' : 'flex'; if (win.style.display === 'flex') document.getElementById('aiChatInput').focus(); });
 document.getElementById('closeAiChat').addEventListener('click', () => { document.getElementById('aiChatWindow').style.display = 'none'; });
