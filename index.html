@@ -20,7 +20,6 @@
 <body>
 <div class="bg-overlay"></div>
 
-<!-- ========== LOGIN/SIGNUP SCREENS ========== -->
 <div id="loginView" class="auth-container">
     <div class="glass-card auth-card">
         <div class="logo-area">
@@ -72,7 +71,6 @@
     </div>
 </div>
 
-<!-- ========== MAIN APP ========== -->
 <div id="mainApp" class="app-main">
     <div id="swipeView" class="view">
         <h2 style="color:white; text-align:center;">Swipe</h2>
@@ -102,7 +100,6 @@
         <div id="exploreList" class="explore-grid"></div>
     </div>
 
-    <!-- ========== MESSAGING VIEW ========== -->
     <div id="messagesView" class="view">
         <div class="msg-top-area">
             <div class="msg-search-bar">
@@ -182,8 +179,6 @@
             <div id="settingsDetailContent"></div>
         </div>
     </div>
-
-    <!-- ========== BOTTOM NAVIGATION ========== -->
     <div class="bottom-nav">
         <div class="nav-item" data-nav="swipe"><i class="fas fa-fire-alt nav-icon"></i><span>Swipe</span></div>
         <div class="nav-item" data-nav="explore"><i class="fas fa-globe-americas nav-icon"></i><span>Explore</span></div>
@@ -193,7 +188,6 @@
     </div>
 </div>
 
-<!-- ========== MEET AI ========== -->
 <button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant"><i class="fas fa-robot"></i></button>
 <div class="ai-chat-window" id="aiChatWindow">
     <div class="ai-chat-header"><span>🤖 MEET AI</span><i class="fas fa-times" id="closeAiChat" style="cursor:pointer; font-size:1.2rem;"></i></div>
@@ -218,6 +212,6 @@ service cloud.firestore {
 </textarea>
 <button id="downloadRulesBtn" style="position:fixed; bottom:80px; right:16px; z-index:1000; background:#ff4d6d; border-radius:40px; padding:8px 16px; border:none; color:white;">📜 Security Rules</button>
 
-<script src="app.js"></script>
+<script src="app.js" type="module"></script>
 </body>
 </html>
