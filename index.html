@@ -10,6 +10,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Firebase SDKs (compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 </head>
 <body>
 <div class="bg-overlay"></div>
@@ -100,13 +107,53 @@
         </div>
         <div id="exploreList" class="explore-grid"></div>
     </div>
+
+    <!-- ========== UPDATED MESSAGING VIEW ========== -->
     <div id="messagesView" class="view">
-        <div style="padding: 12px 16px; background: rgba(0,0,0,0.3); border-radius: 32px 32px 0 0; text-align: center;">
-            <h3 style="color:white; margin:0;">MEET</h3>
+        <!-- New premium top section -->
+        <div class="msg-top-area">
+            <!-- Search bar -->
+            <div class="msg-search-bar">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search messages..." class="msg-search-input">
+                <i class="fas fa-sliders-h filter-icon"></i>
+            </div>
+
+            <!-- Active users row -->
+            <div class="active-users-row">
+                <div class="active-user">
+                    <div class="user-avatar-ring">
+                        <img src="https://randomuser.me/api/portraits/women/1.jpg" class="active-avatar">
+                    </div>
+                    <span class="active-username">Amy</span>
+                </div>
+                <div class="active-user">
+                    <div class="user-avatar-ring">
+                        <img src="https://randomuser.me/api/portraits/men/2.jpg" class="active-avatar">
+                    </div>
+                    <span class="active-username">Ben</span>
+                </div>
+                <div class="active-user">
+                    <div class="user-avatar-ring">
+                        <img src="https://randomuser.me/api/portraits/women/3.jpg" class="active-avatar">
+                    </div>
+                    <span class="active-username">Clara</span>
+                </div>
+                <div class="active-user">
+                    <div class="user-avatar-ring">
+                        <img src="https://randomuser.me/api/portraits/men/4.jpg" class="active-avatar">
+                    </div>
+                    <span class="active-username">Dan</span>
+                </div>
+            </div>
         </div>
+
+        <!-- Chat list container (unchanged) -->
         <div id="chatListContainer" class="chat-list-container"></div>
         <div id="chatScreenContainer" class="chat-screen-container" style="display:none;"></div>
     </div>
+
+    <!-- Profile view, edit profile, settings detail, etc. remain exactly as before -->
     <div id="profileView" class="view">
         <div class="glass-card" style="padding:20px;">
             <div style="text-align:right;"><i class="fas fa-cog" id="openSettingsBtn" style="font-size:1.5rem; color:white; cursor:pointer;"></i></div>
@@ -164,15 +211,29 @@
             <div id="settingsDetailContent"></div>
         </div>
     </div>
+
+    <!-- ========== UPDATED BOTTOM NAVIGATION ========== -->
     <div class="bottom-nav">
-        <div class="nav-item" data-nav="swipe"><i class="fas fa-fire"></i><span>Swipe</span></div>
-        <div class="nav-item" data-nav="explore"><i class="fas fa-compass"></i><span>Explore</span></div>
-        <div class="nav-item" data-nav="messages"><i class="fas fa-comment-dots"></i><span>Chats</span></div>
-        <div class="nav-item" data-nav="profile"><i class="fas fa-user"></i><span>Profile</span></div>
+        <div class="nav-item" data-nav="swipe">
+            <i class="fas fa-fire nav-icon"></i>
+            <span>Swipe</span>
+        </div>
+        <div class="nav-item" data-nav="explore">
+            <i class="fas fa-compass nav-icon"></i>
+            <span>Explore</span>
+        </div>
+        <div class="nav-item" data-nav="messages">
+            <i class="fas fa-comment-dots nav-icon"></i>
+            <span>Chats</span>
+        </div>
+        <div class="nav-item" data-nav="profile">
+            <i class="fas fa-user nav-icon"></i>
+            <span>Profile</span>
+        </div>
     </div>
 </div>
 
-<!-- ========== NEW: MEET AI FLOATING BUTTON & WINDOW ========== -->
+<!-- ========== MEET AI FLOATING BUTTON & WINDOW (unchanged) ========== -->
 <button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant">
     <i class="fas fa-robot"></i>
 </button>
@@ -226,6 +287,6 @@ service cloud.firestore {
 </textarea>
 <button id="downloadRulesBtn" style="position:fixed; bottom:80px; right:16px; z-index:1000; background:#ff4d6d; border-radius:40px; padding:8px 16px; border:none; color:white;">📜 Security Rules</button>
 
-<script type="module" src="app.js"></script>
+<script src="app.js" type="module"></script>
 </body>
 </html>
