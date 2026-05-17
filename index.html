@@ -10,8 +10,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-
-    <!-- Firebase SDKs (compat) -->
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -21,7 +19,7 @@
 <body>
 <div class="bg-overlay"></div>
 
-<!-- ========== ORIGINAL LOGIN/SIGNUP SCREENS ========== -->
+<!-- ========== LOGIN/SIGNUP SCREENS ========== -->
 <div id="loginView" class="auth-container">
     <div class="glass-card auth-card">
         <div class="logo-area">
@@ -39,7 +37,6 @@
                 <input type="password" id="loginPassword" placeholder="Password">
                 <i class="fas fa-eye-slash toggle-pwd" data-target="loginPassword"></i>
             </div>
-            <!-- Referral code (optional) on login -->
             <div class="input-group" id="loginReferralGroup" style="display:none;">
                 <i class="fas fa-gift input-icon"></i>
                 <input type="text" id="loginReferralCode" placeholder="Referral Code (optional)">
@@ -64,7 +61,6 @@
             <div class="input-group"><i class="fas fa-check-circle input-icon"></i><input type="password" id="confirmPwd" placeholder="Confirm password"></div>
             <div class="input-group"><i class="fas fa-venus-mars input-icon"></i><select id="signupGender"><option>Female</option><option>Male</option></select></div>
             <div class="input-group"><i class="fas fa-calendar input-icon"></i><input type="number" id="signupAge" placeholder="Age"></div>
-            <!-- Referral Code (optional) -->
             <div class="input-group">
                 <i class="fas fa-gift input-icon"></i>
                 <input type="text" id="signupReferralCode" placeholder="Referral Code (optional)">
@@ -78,7 +74,7 @@
     </div>
 </div>
 
-<!-- ========== ORIGINAL MAIN APP ========== -->
+<!-- ========== MAIN APP ========== -->
 <div id="mainApp" class="app-main">
     <div id="swipeView" class="view">
         <h2 style="color:white; text-align:center;">Swipe</h2>
@@ -108,52 +104,27 @@
         <div id="exploreList" class="explore-grid"></div>
     </div>
 
-    <!-- ========== UPDATED MESSAGING VIEW ========== -->
+    <!-- ========== MESSAGING VIEW (UPDATED) ========== -->
     <div id="messagesView" class="view">
-        <!-- New premium top section -->
         <div class="msg-top-area">
-            <!-- Search bar -->
             <div class="msg-search-bar">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" placeholder="Search messages..." class="msg-search-input">
+                <input type="text" placeholder="Search chats..." class="msg-search-input" id="chatSearchInput" autocomplete="off">
                 <i class="fas fa-sliders-h filter-icon"></i>
             </div>
-
-            <!-- Active users row -->
-            <div class="active-users-row">
-                <div class="active-user">
-                    <div class="user-avatar-ring">
-                        <img src="https://randomuser.me/api/portraits/women/1.jpg" class="active-avatar">
+            <div class="active-users-row" id="storiesRow">
+                <div class="active-user" id="addStoryBtn">
+                    <div class="user-avatar-ring add-story-ring">
+                        <i class="fas fa-plus" style="color:white; font-size:1.5rem;"></i>
                     </div>
-                    <span class="active-username">Amy</span>
-                </div>
-                <div class="active-user">
-                    <div class="user-avatar-ring">
-                        <img src="https://randomuser.me/api/portraits/men/2.jpg" class="active-avatar">
-                    </div>
-                    <span class="active-username">Ben</span>
-                </div>
-                <div class="active-user">
-                    <div class="user-avatar-ring">
-                        <img src="https://randomuser.me/api/portraits/women/3.jpg" class="active-avatar">
-                    </div>
-                    <span class="active-username">Clara</span>
-                </div>
-                <div class="active-user">
-                    <div class="user-avatar-ring">
-                        <img src="https://randomuser.me/api/portraits/men/4.jpg" class="active-avatar">
-                    </div>
-                    <span class="active-username">Dan</span>
+                    <span class="active-username">Your Story</span>
                 </div>
             </div>
         </div>
-
-        <!-- Chat list container (unchanged) -->
         <div id="chatListContainer" class="chat-list-container"></div>
         <div id="chatScreenContainer" class="chat-screen-container" style="display:none;"></div>
     </div>
 
-    <!-- Profile view, edit profile, settings detail, etc. remain exactly as before -->
     <div id="profileView" class="view">
         <div class="glass-card" style="padding:20px;">
             <div style="text-align:right;"><i class="fas fa-cog" id="openSettingsBtn" style="font-size:1.5rem; color:white; cursor:pointer;"></i></div>
@@ -212,28 +183,27 @@
         </div>
     </div>
 
-    <!-- ========== UPDATED BOTTOM NAVIGATION ========== -->
+    <!-- ========== BOTTOM NAVIGATION (UPDATED) ========== -->
     <div class="bottom-nav">
         <div class="nav-item" data-nav="swipe">
-            <i class="fas fa-fire nav-icon"></i>
-            <span>Swipe</span>
+            <i class="fas fa-fire nav-icon"></i><span>Swipe</span>
         </div>
         <div class="nav-item" data-nav="explore">
-            <i class="fas fa-compass nav-icon"></i>
-            <span>Explore</span>
+            <i class="fas fa-compass nav-icon"></i><span>Explore</span>
+        </div>
+        <div class="nav-item" data-nav="stories">
+            <i class="fas fa-plus-circle nav-icon"></i><span>Story</span>
         </div>
         <div class="nav-item" data-nav="messages">
-            <i class="fas fa-comment-dots nav-icon"></i>
-            <span>Chats</span>
+            <i class="fas fa-comment-dots nav-icon"></i><span>Chats</span>
         </div>
         <div class="nav-item" data-nav="profile">
-            <i class="fas fa-user nav-icon"></i>
-            <span>Profile</span>
+            <i class="fas fa-user nav-icon"></i><span>Profile</span>
         </div>
     </div>
 </div>
 
-<!-- ========== MEET AI FLOATING BUTTON & WINDOW (unchanged) ========== -->
+<!-- ========== MEET AI ========== -->
 <button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant">
     <i class="fas fa-robot"></i>
 </button>
@@ -257,27 +227,14 @@ service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
       allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId
-                   || request.auth.token.email == 'tinocrain@gmail.com';
+      allow write: if request.auth.uid == userId || request.auth.token.email == 'tinocrain@gmail.com';
     }
-    match /chats/{chatId}/messages/{message} {
-      allow read, write: if request.auth != null;
-    }
-    match /reports/{report} {
-      allow read, write: if request.auth != null;
-    }
-    match /appeals/{appeal} {
-      allow read, write: if request.auth != null;
-    }
-    match /events/{event} {
-      allow read, write: if request.auth != null;
-    }
-    match /profileViews/{view} {
-      allow read, write: if request.auth != null;
-    }
-    match /typing/{doc} {
-      allow read, write: if request.auth != null;
-    }
+    match /chats/{chatId}/messages/{message} { allow read, write: if request.auth != null; }
+    match /reports/{report} { allow read, write: if request.auth != null; }
+    match /appeals/{appeal} { allow read, write: if request.auth != null; }
+    match /events/{event} { allow read, write: if request.auth != null; }
+    match /profileViews/{view} { allow read, write: if request.auth != null; }
+    match /typing/{doc} { allow read, write: if request.auth != null; }
     match /notifications/{notification} {
       allow read: if request.auth.uid == resource.data.toUserId;
       allow write: if request.auth != null;
@@ -287,6 +244,6 @@ service cloud.firestore {
 </textarea>
 <button id="downloadRulesBtn" style="position:fixed; bottom:80px; right:16px; z-index:1000; background:#ff4d6d; border-radius:40px; padding:8px 16px; border:none; color:white;">📜 Security Rules</button>
 
-<script src="app.js" type="module"></script>
+<script src="app.js"></script>
 </body>
 </html>
