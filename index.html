@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-storage-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div class="bg-overlay"></div>
@@ -61,10 +62,7 @@
             <div class="input-group"><i class="fas fa-check-circle input-icon"></i><input type="password" id="confirmPwd" placeholder="Confirm password"></div>
             <div class="input-group"><i class="fas fa-venus-mars input-icon"></i><select id="signupGender"><option>Female</option><option>Male</option></select></div>
             <div class="input-group"><i class="fas fa-calendar input-icon"></i><input type="number" id="signupAge" placeholder="Age"></div>
-            <div class="input-group">
-                <i class="fas fa-gift input-icon"></i>
-                <input type="text" id="signupReferralCode" placeholder="Referral Code (optional)">
-            </div>
+            <div class="input-group"><i class="fas fa-gift input-icon"></i><input type="text" id="signupReferralCode" placeholder="Referral Code (optional)"></div>
             <button type="submit" class="gradient-btn">Create account</button>
             <div class="divider">or</div>
             <button type="button" id="googleSignUpBtn" class="gradient-btn google-btn"><i class="fab fa-google"></i> Sign up with Google</button>
@@ -104,7 +102,7 @@
         <div id="exploreList" class="explore-grid"></div>
     </div>
 
-    <!-- ========== MESSAGING VIEW (UPDATED) ========== -->
+    <!-- ========== MESSAGING VIEW ========== -->
     <div id="messagesView" class="view">
         <div class="msg-top-area">
             <div class="msg-search-bar">
@@ -118,6 +116,12 @@
                         <i class="fas fa-plus" style="color:white; font-size:1.5rem;"></i>
                     </div>
                     <span class="active-username">Your Story</span>
+                </div>
+                <div class="active-user" id="watchStoriesBtn">
+                    <div class="user-avatar-ring" style="background: linear-gradient(135deg, #ff6ec7, #c44bff);">
+                        <i class="fas fa-play" style="color:white; font-size:1.2rem;"></i>
+                    </div>
+                    <span class="active-username">Watch</span>
                 </div>
             </div>
         </div>
@@ -183,62 +187,46 @@
         </div>
     </div>
 
-    <!-- ========== BOTTOM NAVIGATION (UPDATED) ========== -->
+    <!-- ========== BOTTOM NAVIGATION ========== -->
     <div class="bottom-nav">
         <div class="nav-item" data-nav="swipe">
-            <i class="fas fa-fire nav-icon"></i><span>Swipe</span>
+            <i class="fas fa-fire-alt nav-icon"></i><span>Swipe</span>
         </div>
         <div class="nav-item" data-nav="explore">
-            <i class="fas fa-compass nav-icon"></i><span>Explore</span>
+            <i class="fas fa-globe-americas nav-icon"></i><span>Explore</span>
         </div>
         <div class="nav-item" data-nav="stories">
-            <i class="fas fa-plus-circle nav-icon"></i><span>Story</span>
+            <i class="fas fa-circle nav-icon story-dot"></i><span>Stories</span>
         </div>
         <div class="nav-item" data-nav="messages">
-            <i class="fas fa-comment-dots nav-icon"></i><span>Chats</span>
+            <i class="fas fa-comment-smile nav-icon"></i><span>Chats</span>
         </div>
         <div class="nav-item" data-nav="profile">
-            <i class="fas fa-user nav-icon"></i><span>Profile</span>
+            <i class="fas fa-user-astronaut nav-icon"></i><span>Profile</span>
         </div>
     </div>
 </div>
 
 <!-- ========== MEET AI ========== -->
-<button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant">
-    <i class="fas fa-robot"></i>
-</button>
+<button class="ai-chat-btn" id="aiChatToggleBtn" title="MEET AI Assistant"><i class="fas fa-robot"></i></button>
 <div class="ai-chat-window" id="aiChatWindow">
-    <div class="ai-chat-header">
-        <span>🤖 MEET AI</span>
-        <i class="fas fa-times" id="closeAiChat" style="cursor:pointer; font-size:1.2rem;"></i>
-    </div>
-    <div class="ai-chat-body" id="aiChatBody">
-        <div class="ai-message bot">Hi! I'm MEET AI. I can help with dating tips, relationship advice, matching suggestions, date ideas, or emotional support. How can I assist you?</div>
-    </div>
-    <div class="ai-chat-input-area">
-        <input type="text" id="aiChatInput" placeholder="Type your message...">
-        <button id="sendAiMsg"><i class="fas fa-paper-plane"></i></button>
-    </div>
+    <div class="ai-chat-header"><span>🤖 MEET AI</span><i class="fas fa-times" id="closeAiChat" style="cursor:pointer; font-size:1.2rem;"></i></div>
+    <div class="ai-chat-body" id="aiChatBody"><div class="ai-message bot">Hi! I'm MEET AI. How can I assist you?</div></div>
+    <div class="ai-chat-input-area"><input type="text" id="aiChatInput" placeholder="Type your message..."><button id="sendAiMsg"><i class="fas fa-paper-plane"></i></button></div>
 </div>
 
 <textarea id="firebaseRules" style="display:none;">
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId || request.auth.token.email == 'tinocrain@gmail.com';
-    }
+    match /users/{userId} { allow read: if request.auth != null; allow write: if request.auth.uid == userId || request.auth.token.email == 'tinocrain@gmail.com'; }
     match /chats/{chatId}/messages/{message} { allow read, write: if request.auth != null; }
     match /reports/{report} { allow read, write: if request.auth != null; }
     match /appeals/{appeal} { allow read, write: if request.auth != null; }
     match /events/{event} { allow read, write: if request.auth != null; }
     match /profileViews/{view} { allow read, write: if request.auth != null; }
     match /typing/{doc} { allow read, write: if request.auth != null; }
-    match /notifications/{notification} {
-      allow read: if request.auth.uid == resource.data.toUserId;
-      allow write: if request.auth != null;
-    }
+    match /notifications/{notification} { allow read: if request.auth.uid == resource.data.toUserId; allow write: if request.auth != null; }
   }
 }
 </textarea>
