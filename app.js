@@ -51,6 +51,11 @@ const messaging = firebase.messaging();
 const googleProvider = new firebase.auth.GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
+// ========== SUPABASE INIT ==========
+const SUPABASE_URL = 'https://brululwrccmvhlhevjkn.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_u8Mb93q3osN_qdtn2DnNBQ_2FNQu9BP';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 let currentUser = null;
 let heartbeatInterval = null;
 let unsubscribeUser = null;
@@ -434,7 +439,6 @@ async function renderExplore() {
             renderExplore();
         }));
     } else { matchQueueDiv.style.display = 'none'; }
-    // LIKE BUTTON REMOVED from explore cards
     document.getElementById('exploreList').innerHTML = filtered.map(u => `<div class="explore-card"><img src="${u.profilePic}" width="80" style="border-radius:50%;"><h4>${u.name}, ${u.age}</h4><button class="small-glass report-btn" data-id="${u.uid}">Report</button></div>`).join('');
     document.querySelectorAll('.report-btn').forEach(btn => btn.addEventListener('click', () => {
         const targetId = btn.dataset.id; const target = filtered.find(u => u.uid === targetId);
@@ -476,7 +480,7 @@ async function renderChatList() {
     }));
 }
 
-// ========== FULL‑SCREEN CHAT ==========
+// ========== FULL‑SCREEN CHAT WITH IMAGE/VOICE ==========
 async function openChatScreen(partnerId) {
     if(currentUser.verified !== true) { await customAlert("You must verify your identity before chatting.", "Verification Required"); return; }
     currentChatPartner = partnerId;
@@ -493,7 +497,14 @@ async function openChatScreen(partnerId) {
     screenDiv.innerHTML = `
         <div class="chat-header"><button class="back-btn" id="backToChatList"><i class="fas fa-arrow-left"></i></button><div class="chat-profile" data-id="${partner.uid}"><img src="${partner.profilePic}" id="chatAvatar"><div><div class="chat-name">${partner.name} ${partner.verified ? '<i class="fas fa-check-circle verified-icon"></i>' : ''}</div><div class="chat-status" id="chatStatus">${statusText}</div><div id="typingStatus" style="font-size:0.7rem;"></div></div></div><div class="chat-actions"><i class="fas fa-phone" id="callDemo"></i><i class="fas fa-video" id="videoDemo"></i><i class="fas fa-ban" id="blockFromChat"></i><i class="fas fa-ellipsis-v" id="menuUnmatch"></i></div></div>
         <div class="messages-area" id="messagesArea"></div>
-        <div class="input-area"><input type="text" id="messageInputChat" placeholder="Type a message..."><button id="sendChatMsg"><i class="fas fa-paper-plane"></i></button></div>`;
+        <div class="input-area">
+            <div class="chat-attach-btns">
+                <button id="sendImageBtn" title="Send Image"><i class="fas fa-image"></i></button>
+                <button id="sendVoiceBtn" title="Send Voice"><i class="fas fa-microphone"></i></button>
+            </div>
+            <input type="text" id="messageInputChat" placeholder="Type a message...">
+            <button id="sendChatMsg"><i class="fas fa-paper-plane"></i></button>
+        </div>`;
     document.querySelector('.chat-profile').addEventListener('click', () => showQuickProfile(partner.uid));
     document.getElementById('backToChatList').onclick = () => { screenDiv.style.display = 'none'; screenDiv.classList.remove('fullscreen'); document.getElementById('chatListContainer').style.display = 'block'; if(unsubscribeMessages) unsubscribeMessages(); renderChatList(); };
     document.getElementById('blockFromChat')?.addEventListener('click', async () => {
@@ -510,6 +521,45 @@ async function openChatScreen(partnerId) {
             document.getElementById('backToChatList').click();
         }
     });
+
+    const chatId = [currentUser.uid, partnerId].sort().join('_');
+    const messagesArea = document.getElementById('messagesArea');
+
+    // Image upload to Supabase
+    document.getElementById('sendImageBtn').addEventListener('click', async () => {
+        const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
+        input.onchange = async (e) => {
+            const file = e.target.files[0]; if (!file) return;
+            const fileName = `${currentUser.uid}_${Date.now()}_${file.name}`;
+            const { error } = await supabase.storage.from('chat-images').upload(fileName, file);
+            if (error) { customAlert("Image upload failed", "Error"); return; }
+            const url = supabase.storage.from('chat-images').getPublicUrl(fileName).data.publicUrl;
+            await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: url, type: 'image', timestamp: Date.now(), status: "sent", read: false });
+        };
+        input.click();
+    });
+
+    // Voice recording & upload to Supabase
+    let mediaRecorder, audioChunks = [];
+    document.getElementById('sendVoiceBtn').addEventListener('click', async () => {
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+            mediaRecorder.onstop = async () => {
+                const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                const fileName = `${currentUser.uid}_${Date.now()}_voice.webm`;
+                const { error } = await supabase.storage.from('voice-messages').upload(fileName, blob);
+                if (error) { customAlert("Voice upload failed", "Error"); return; }
+                const url = supabase.storage.from('voice-messages').getPublicUrl(fileName).data.publicUrl;
+                await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: url, type: 'voice', timestamp: Date.now(), status: "sent", read: false });
+            };
+            mediaRecorder.start();
+            document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-stop"></i>';
+        } else { mediaRecorder.stop(); document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-microphone"></i>'; }
+    });
+
     const typingRef = db.collection("typing").doc(`${currentUser.uid}_${partnerId}`);
     typingRef.onSnapshot(doc => { if(doc.exists && doc.data().isTyping && doc.data().userId === partnerId) document.getElementById('typingStatus').innerHTML = "typing..."; else document.getElementById('typingStatus').innerHTML = ""; });
     const input = document.getElementById('messageInputChat');
@@ -518,8 +568,7 @@ async function openChatScreen(partnerId) {
         if(typingTimeout) clearTimeout(typingTimeout);
         typingTimeout = setTimeout(async () => { await typingRef.set({ userId: currentUser.uid, isTyping: false, timestamp: Date.now() }); }, 1000);
     });
-    const chatId = [currentUser.uid, partnerId].sort().join('_');
-    const messagesArea = document.getElementById('messagesArea');
+
     const q = db.collection("chats").doc(chatId).collection("messages").orderBy("timestamp");
     if(unsubscribeMessages) unsubscribeMessages();
     unsubscribeMessages = q.onSnapshot(async snapshot => {
@@ -527,6 +576,8 @@ async function openChatScreen(partnerId) {
         messagesArea.innerHTML = messages.map(msg => {
             const isSent = msg.senderId === currentUser.uid;
             const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            if (msg.type === 'image') return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><img src="${msg.text}" style="max-width:200px; border-radius:12px;"><div class="message-time">${time}</div></div>`;
+            if (msg.type === 'voice') return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><audio controls src="${msg.text}" style="max-width:200px;"></audio><div class="message-time">${time}</div></div>`;
             return `<div class="message-bubble ${isSent ? 'sent' : 'received'}"><div class="message-text">${msg.text}</div><div class="message-time">${time}</div></div>`;
         }).join('');
         messagesArea.scrollTop = messagesArea.scrollHeight;
@@ -534,15 +585,15 @@ async function openChatScreen(partnerId) {
             if (change.type === "added") {
                 const msg = change.doc.data();
                 if (msg.senderId !== currentUser.uid && currentChatPartner !== msg.senderId) {
-                    showBrowserNotification('New Message', `${partner.name}: ${msg.text}`);
+                    showBrowserNotification('New Message', `${partner.name}: ${msg.type === 'image' ? '📷 Image' : msg.type === 'voice' ? '🎤 Voice' : msg.text}`);
                 }
             }
         });
     });
+
     document.getElementById('sendChatMsg').onclick = async () => {
-        const text = input.value.trim();
-        if(!text) return;
-        await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text, timestamp: Date.now(), status: "sent", read: false });
+        const text = input.value.trim(); if(!text) return;
+        await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text, type: 'text', timestamp: Date.now(), status: "sent", read: false });
         input.value = '';
     };
 }
@@ -562,8 +613,10 @@ document.querySelector('[data-nav="stories"]')?.addEventListener('click', () => 
     const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*,video/*';
     input.onchange = async (e) => {
         const file = e.target.files[0]; if (!file) return;
-        const storyRef = storage.ref(`stories/${currentUser.uid}/${Date.now()}_${file.name}`);
-        await storyRef.put(file); const url = await storyRef.getDownloadURL();
+        const fileName = `stories/${currentUser.uid}_${Date.now()}_${file.name}`;
+        const { error } = await supabase.storage.from('chat-images').upload(fileName, file);
+        if (error) { customAlert("Story upload failed", "Error"); return; }
+        const url = supabase.storage.from('chat-images').getPublicUrl(fileName).data.publicUrl;
         const modal = document.createElement('div'); modal.className = 'story-modal';
         modal.innerHTML = `<span class="story-close">&times;</span>${file.type.startsWith('video') ? `<video src="${url}" controls autoplay></video>` : `<img src="${url}">`}`;
         document.body.appendChild(modal);
@@ -571,6 +624,27 @@ document.querySelector('[data-nav="stories"]')?.addEventListener('click', () => 
         setTimeout(() => modal.remove(), 10000);
     };
     input.click();
+});
+
+// ========== WATCH STORIES ==========
+document.getElementById('watchStoriesBtn')?.addEventListener('click', async () => {
+    const { data: files, error } = await supabase.storage.from('chat-images').list('stories', { limit: 20 });
+    if (error || !files?.length) { customAlert("No stories available", "Stories"); return; }
+    let currentStory = 0;
+    const stories = files.filter(f => f.name.match(/\.(mp4|webm|jpg|jpeg|png|gif)$/));
+    if (!stories.length) { customAlert("No stories available", "Stories"); return; }
+    const modal = document.createElement('div'); modal.className = 'story-modal';
+    const showStory = (index) => {
+        const url = supabase.storage.from('chat-images').getPublicUrl(`stories/${stories[index].name}`).data.publicUrl;
+        const isVideo = stories[index].name.match(/\.(mp4|webm)$/);
+        modal.innerHTML = `<span class="story-close">&times;</span>${isVideo ? `<video src="${url}" controls autoplay></video>` : `<img src="${url}">`}<div class="story-nav"><button id="prevStory">◀</button><button id="nextStory">▶</button></div>`;
+        modal.querySelector('.story-close').onclick = () => modal.remove();
+        modal.querySelector('#prevStory')?.addEventListener('click', () => { currentStory = (currentStory - 1 + stories.length) % stories.length; showStory(currentStory); });
+        modal.querySelector('#nextStory')?.addEventListener('click', () => { currentStory = (currentStory + 1) % stories.length; showStory(currentStory); });
+    };
+    showStory(0);
+    document.body.appendChild(modal);
+    setTimeout(() => modal.remove(), 30000);
 });
 
 // ========== PROFILE UI ==========
@@ -619,27 +693,70 @@ async function renderProfileUI() {
     }));
     document.getElementById('editProfileBtn').onclick = () => { document.getElementById('profileView').classList.remove('active-view'); document.getElementById('editProfileView').style.display = 'block'; loadEditProfile(); };
     document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoUploadInput').click();
+
+    // Profile picture upload via Supabase
     document.getElementById('photoUploadInput').onchange = async (e) => {
         if(e.target.files[0]){
             const file = e.target.files[0];
-            const storageRef = storage.ref(`profilePics/${currentUser.uid}/${Date.now()}_${file.name}`);
-            await storageRef.put(file); const url = await storageRef.getDownloadURL();
+            const fileName = `${currentUser.uid}_${Date.now()}_${file.name}`;
+            const { error } = await supabase.storage.from('profile-pictures').upload(fileName, file);
+            if (error) { customAlert("Upload failed", "Error"); return; }
+            const url = supabase.storage.from('profile-pictures').getPublicUrl(fileName).data.publicUrl;
             await db.collection("users").doc(currentUser.uid).update({ profilePic: url });
-            currentUser.profilePic = url; document.getElementById('profileAvatar').src = url;
+            currentUser.profilePic = url;
+            document.getElementById('profileAvatar').src = url;
             await customAlert("Photo updated!", "Success");
         }
     };
+
+    // Share profile (fully functional)
+    document.getElementById('shareProfileBtn').onclick = async () => {
+        const shareData = {
+            title: `${currentUser.name} on MEET`,
+            text: `Check out ${currentUser.name}'s profile on MEET – where sparks glow! 💖`,
+            url: `https://ceezy-website.web.app?ref=${currentUser.referralCode}`
+        };
+        if (navigator.share) {
+            try { await navigator.share(shareData); } catch (err) { console.log('Share cancelled'); }
+        } else {
+            await navigator.clipboard.writeText(shareData.url).then(() => customAlert("Profile link copied!", "Share"));
+        }
+    };
+
     document.getElementById('logoutBtnProfile').onclick = async () => { localStorage.removeItem('currentUserUid'); window.location.reload(); };
 }
 async function verifyIdentity() { await db.collection("users").doc(currentUser.uid).update({ verified: true }); await customAlert("Verified!", "Success"); renderProfileUI(); }
 async function showAdminLogin() { const pwd = await customPrompt("Admin password:", "", "Admin Login"); if(pwd === 'Crains'){ isAdminLoggedIn = true; renderAdminPanel(); } else await customAlert("Wrong password", "Error"); }
 async function submitAppealPrompt() { const reason = await customPrompt("Why should we unban you?", "", "Appeal"); if(reason) await submitAppeal(reason); }
 function copyReferralLink() { navigator.clipboard?.writeText(`https://ceezy-website.web.app?ref=${currentUser.referralCode}`).then(() => customAlert("Referral link copied!", "Referral")); }
-async function showContactsInvite() { /* unchanged */ }
+async function showContactsInvite() {
+    const link = `https://ceezy-website.web.app?ref=${currentUser.referralCode}`;
+    const shareData = { title: 'Join MEET', text: 'Check out MEET – where sparks glow!', url: link };
+    if (navigator.share) { try { await navigator.share(shareData); } catch (err) {} }
+    else { navigator.clipboard.writeText(link).then(() => customAlert("Referral link copied!", "Invite")); }
+}
 function showRatingModal() { /* unchanged */ }
-async function deleteAccount() { /* unchanged */ }
-async function upgradeToPremium(userId, plan) { /* unchanged */ }
-function showUpgradeModal() { /* unchanged */ }
+async function deleteAccount() {
+    if (!currentUser) return;
+    if (await customConfirm("Delete your account permanently?", "Delete Account")) {
+        await db.collection("users").doc(currentUser.uid).delete();
+        await auth.signOut(); localStorage.removeItem('currentUserUid');
+        customAlert("Account deleted", "Goodbye"); window.location.reload();
+    }
+}
+async function upgradeToPremium(userId, plan) {
+    const expiresAt = Date.now() + 30*24*60*60*1000;
+    let features = { unlimitedSwipes: true, seeWhoLikedYou: true, readReceipts: plan === 'platinum', boost: plan === 'platinum' };
+    await db.collection("users").doc(userId).update({ isPremium: true, premiumPlan: plan, premiumExpiresAt: expiresAt, features, verified: true });
+    await refreshCurrentUser(); await customAlert(`Upgraded to ${plan.toUpperCase()}!`, "Premium"); renderProfileUI();
+}
+function showUpgradeModal() {
+    const modal = document.createElement('div'); modal.className = 'upgrade-modal';
+    modal.innerHTML = `<h3>Choose Plan</h3><div class="upgrade-plan" data-plan="gold"><strong>Gold – $3.27/month</strong><br>Unlimited swipes + See who liked you</div><div class="upgrade-plan" data-plan="platinum"><strong>Platinum – $12.99/month</strong><br>All Gold + Read receipts + Boost</div><button class="small-glass" id="closeUpgradeModal">Cancel</button>`;
+    document.body.appendChild(modal);
+    modal.querySelectorAll('.upgrade-plan').forEach(btn => btn.addEventListener('click', async () => { await upgradeToPremium(currentUser.uid, btn.dataset.plan); modal.remove(); }));
+    modal.querySelector('#closeUpgradeModal').onclick = () => modal.remove();
+}
 function loadEditProfile() { /* unchanged */ }
 function showSettingsDetail(section) { /* unchanged */ }
 
@@ -731,16 +848,27 @@ if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/firebase-
 // Start
 if(localStorage.getItem('currentUserUid')) { loadCurrentUser().then(()=>{ if(currentUser) showMainApp(); else document.getElementById('loginView').style.display='flex'; }); } else { document.getElementById('loginView').style.display='flex'; }
 
-// MEET AI (unchanged - your existing code)
-const OPAI_ = 'sk-p';
+// MEET AI
+const OPENAI_API_KEY = 'sk-';
 let aiConversation = [{ role: "system", content: "You are MEET AI, a helpful assistant in a dating app. Provide dating tips, relationship advice, matching suggestions, date plan ideas, emotional support, and guidance on using the app. Keep answers concise and friendly." }];
 document.getElementById('aiChatToggleBtn').addEventListener('click', () => { if (!currentUser) { customAlert("Please log in to use MEET AI.", "Authentication Required"); return; } const win = document.getElementById('aiChatWindow'); win.style.display = (win.style.display === 'flex') ? 'none' : 'flex'; if (win.style.display === 'flex') document.getElementById('aiChatInput').focus(); });
 document.getElementById('closeAiChat').addEventListener('click', () => { document.getElementById('aiChatWindow').style.display = 'none'; });
 document.getElementById('sendAiMsg').addEventListener('click', sendAiMessage);
 document.getElementById('aiChatInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') sendAiMessage(); });
-async function sendAiMessage() { /* unchanged */ }
-function addAiBubble(text, sender) { /* unchanged */ }
-async function fetchOpenAIResponse() { /* unchanged */ }
+async function sendAiMessage() {
+    const input = document.getElementById('aiChatInput'); const text = input.value.trim(); if (!text) return;
+    addAiBubble(text, 'user'); aiConversation.push({ role: 'user', content: text }); input.value = '';
+    const typingDiv = document.createElement('div'); typingDiv.className = 'ai-message bot typing-indicator'; typingDiv.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+    const body = document.getElementById('aiChatBody'); body.appendChild(typingDiv); body.scrollTop = body.scrollHeight;
+    try { const reply = await fetchOpenAIResponse(); typingDiv.remove(); addAiBubble(reply, 'bot'); aiConversation.push({ role: 'assistant', content: reply }); }
+    catch (err) { typingDiv.remove(); addAiBubble("Sorry, I'm having trouble right now. Please try again later.", 'bot'); }
+}
+function addAiBubble(text, sender) { const bubble = document.createElement('div'); bubble.className = `ai-message ${sender}`; bubble.textContent = text; document.getElementById('aiChatBody').appendChild(bubble); bubble.scrollIntoView({ behavior: 'smooth' }); }
+async function fetchOpenAIResponse() {
+    const response = await fetch('https://api.openai.com/v1/chat/completions', { method: 'POST', headers: { 'Authorization': `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'gpt-3.5-turbo', messages: aiConversation, temperature: 0.7, max_tokens: 300 }) });
+    if (!response.ok) throw new Error(`API error: ${response.status}`);
+    const data = await response.json(); return data.choices[0].message.content;
+}
 
-// Download rules button
+// Download rules
 document.getElementById('downloadRulesBtn').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([document.getElementById('firebaseRules').value], { type: 'text/plain' })); a.download = 'firestore.rules'; a.click(); };
