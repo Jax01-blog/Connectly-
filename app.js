@@ -52,8 +52,8 @@ const googleProvider = new firebase.auth.GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 // ========== SUPABASE INIT ==========
-const SUPABASE_URL = 'https://brululwrccmvhlhevjkn.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_u8Mb93q3osN_qdtn2DnNBQ_2FNQu9BP';
+const SUPABASE_URL = 'https://brululwrccmvhlhevjkn.supabase.co/rest/v1/';
+const SUPABASE_ANON_KEY = 'sb_publishable_u8Mb93q3osN_qdtnD2nNBQ_2FNQu9BP';
 let supabase = null;
 try {
     if (window.supabase && typeof window.supabase.createClient === 'function') {
