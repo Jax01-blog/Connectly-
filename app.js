@@ -592,7 +592,7 @@ async function renderChatList() {
     }));
 }
 
-// ========== FULL-SCREEN CHAT WITH IMAGE/VOICE (FIXED - USING PUTER.JS) ==========
+// ========== FULL-SCREEN CHAT WITH IMAGE/VOICE (USING PUTER.JS) ==========
 async function openChatScreen(partnerId) {
     if(currentUser.verified !== true) { await customAlert("You must verify your identity before chatting.", "Verification Required"); return; }
     currentChatPartner = partnerId;
