@@ -592,7 +592,7 @@ async function renderChatList() {
     }));
 }
 
-// ========== FULL-SCREEN CHAT WITH IMAGE/VOICE (FIXED) ==========
+// ========== FULL-SCREEN CHAT WITH IMAGE/VOICE (FIXED - USING PUTER.JS) ==========
 async function openChatScreen(partnerId) {
     if(currentUser.verified !== true) { await customAlert("You must verify your identity before chatting.", "Verification Required"); return; }
     currentChatPartner = partnerId;
@@ -615,28 +615,43 @@ async function openChatScreen(partnerId) {
     document.getElementById('backToChatList').onclick = () => { screenDiv.style.display = 'none'; screenDiv.classList.remove('fullscreen'); document.getElementById('chatListContainer').style.display = 'block'; if(unsubscribeMessages) unsubscribeMessages(); renderChatList(); };
     const chatId = [currentUser.uid, partnerId].sort().join('_');
     
-    // Image upload via Supabase (FIXED)
+    // ========== IMAGE UPLOAD USING PUTER.JS ==========
     document.getElementById('sendImageBtn').addEventListener('click', () => {
-        if (!supabase) { customAlert("Upload service unavailable. Please try again later.", "Error"); return; }
+        if (!window.puter) {
+            customAlert("Puter.js not loaded. Please refresh and try again.", "Error");
+            return;
+        }
         const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
         input.onchange = async (e) => {
             const file = e.target.files[0]; if (!file) return;
             if (file.size > 10 * 1024 * 1024) { customAlert("Image must be less than 10MB.", "Error"); return; }
-            const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            const fileName = `chat-images/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
             try {
-                const { error } = await supabase.storage.from('chat-images').upload(fileName, file);
-                if (error) { console.error('Upload error:', error); customAlert("Image upload failed. Please check your connection.", "Error"); return; }
-                const { data: urlData } = supabase.storage.from('chat-images').getPublicUrl(fileName);
-                await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: urlData.publicUrl, type: 'image', timestamp: Date.now(), status: "sent", read: false });
-            } catch (err) { console.error('Upload error:', err); customAlert("Image upload failed.", "Error"); }
+                const savedFile = await puter.fs.write(fileName, file);
+                const publicUrl = savedFile.url;
+                await db.collection("chats").doc(chatId).collection("messages").add({
+                    senderId: currentUser.uid,
+                    text: publicUrl,
+                    type: 'image',
+                    timestamp: Date.now(),
+                    status: "sent",
+                    read: false
+                });
+            } catch (err) {
+                console.error('Image upload error:', err);
+                customAlert("Image upload failed. Please try again.", "Error");
+            }
         };
         input.click();
     });
     
-    // Voice recording via Supabase (FIXED)
+    // ========== VOICE RECORDING & UPLOAD USING PUTER.JS ==========
     let mediaRecorder, audioChunks = [];
     document.getElementById('sendVoiceBtn').addEventListener('click', async () => {
-        if (!supabase) { customAlert("Upload service unavailable.", "Error"); return; }
+        if (!window.puter) {
+            customAlert("Puter.js not loaded. Please refresh.", "Error");
+            return;
+        }
         if (!mediaRecorder || mediaRecorder.state === 'inactive') {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -646,13 +661,22 @@ async function openChatScreen(partnerId) {
                 mediaRecorder.onstop = async () => {
                     if (audioChunks.length === 0) { customAlert("No audio recorded.", "Error"); return; }
                     const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                    const fileName = `${Date.now()}_voice.webm`;
+                    const fileName = `voice-messages/${Date.now()}_voice.webm`;
                     try {
-                        const { error } = await supabase.storage.from('voice-messages').upload(fileName, blob);
-                        if (error) { console.error('Upload error:', error); customAlert("Voice upload failed.", "Error"); return; }
-                        const { data: urlData } = supabase.storage.from('voice-messages').getPublicUrl(fileName);
-                        await db.collection("chats").doc(chatId).collection("messages").add({ senderId: currentUser.uid, text: urlData.publicUrl, type: 'voice', timestamp: Date.now(), status: "sent", read: false });
-                    } catch (err) { console.error('Upload error:', err); customAlert("Voice upload failed.", "Error"); }
+                        const savedFile = await puter.fs.write(fileName, blob);
+                        const publicUrl = savedFile.url;
+                        await db.collection("chats").doc(chatId).collection("messages").add({
+                            senderId: currentUser.uid,
+                            text: publicUrl,
+                            type: 'voice',
+                            timestamp: Date.now(),
+                            status: "sent",
+                            read: false
+                        });
+                    } catch (err) {
+                        console.error('Voice upload error:', err);
+                        customAlert("Voice upload failed.", "Error");
+                    }
                     document.getElementById('sendVoiceBtn').innerHTML = '<i class="fas fa-microphone"></i>';
                 };
                 mediaRecorder.start();
@@ -695,7 +719,7 @@ async function openChatScreen(partnerId) {
 // ========== CHAT SEARCH ==========
 document.getElementById('chatSearchInput')?.addEventListener('input', function(e) { const term = e.target.value.toLowerCase().trim(); document.querySelectorAll('.chat-list-item').forEach(item => { const name = item.querySelector('.chat-name')?.textContent?.toLowerCase() || ''; item.style.display = name.includes(term) ? 'flex' : 'none'; }); });
 
-// ========== STORIES (FIXED) ==========
+// ========== STORIES (using Supabase - kept unchanged) ==========
 document.querySelector('[data-nav="stories"]')?.addEventListener('click', () => {
     if (!currentUser) { customAlert("Please log in to create a story.", "Login Required"); return; }
     if (!supabase) { customAlert("Stories unavailable.", "Error"); return; }
@@ -716,7 +740,7 @@ document.querySelector('[data-nav="stories"]')?.addEventListener('click', () => 
     input.click();
 });
 
-// ========== WATCH STORIES ==========
+// ========== WATCH STORIES (unchanged) ==========
 document.getElementById('watchStoriesBtn')?.addEventListener('click', async () => {
     if (!supabase) { customAlert("Stories unavailable.", "Error"); return; }
     try {
@@ -743,25 +767,33 @@ async function renderProfileUI() {
     document.getElementById('editProfileBtn').onclick = () => { document.getElementById('profileView').classList.remove('active-view'); document.getElementById('editProfileView').style.display = 'block'; loadEditProfile(); };
     document.getElementById('shareProfileBtn').onclick = async () => await customAlert("Share profile link (demo)", "Share");
     document.getElementById('changePhotoBtn').onclick = () => document.getElementById('photoUploadInput').click();
-    // Profile picture upload via Supabase (FIXED)
+    
+    // ========== PROFILE PICTURE UPLOAD USING PUTER.JS ==========
     document.getElementById('photoUploadInput').onchange = async (e) => {
-        if(e.target.files[0]){
-            if (!supabase) { customAlert("Upload service unavailable.", "Error"); return; }
-            const file = e.target.files[0];
-            if (file.size > 5 * 1024 * 1024) { customAlert("Photo must be less than 5MB.", "Error"); return; }
-            const fileName = `${currentUser.uid}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-            try {
-                const { error } = await supabase.storage.from('profile-pictures').upload(fileName, file, { upsert: true });
-                if (error) { console.error('Profile upload error:', error); customAlert("Upload failed. Please try again.", "Error"); return; }
-                const { data: urlData } = supabase.storage.from('profile-pictures').getPublicUrl(fileName);
-                const url = urlData.publicUrl;
-                await db.collection("users").doc(currentUser.uid).update({ profilePic: url });
-                currentUser.profilePic = url;
-                document.getElementById('profileAvatar').src = url + '?t=' + Date.now();
-                await customAlert("Photo updated!", "Success");
-            } catch (err) { console.error('Profile upload error:', err); customAlert("Upload failed.", "Error"); }
+        const file = e.target.files[0];
+        if (!file) return;
+        if (!window.puter) {
+            await customAlert("Puter.js not loaded. Please refresh and try again.", "Error");
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+            await customAlert("Photo must be less than 5MB.", "Error");
+            return;
+        }
+        try {
+            const fileName = `profile-pics/${currentUser.uid}_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+            const savedFile = await puter.fs.write(fileName, file);
+            const publicUrl = savedFile.url;
+            await db.collection("users").doc(currentUser.uid).update({ profilePic: publicUrl });
+            currentUser.profilePic = publicUrl;
+            document.getElementById('profileAvatar').src = publicUrl + '?t=' + Date.now();
+            await customAlert("Photo updated!", "Success");
+        } catch (err) {
+            console.error('Profile upload error:', err);
+            await customAlert("Upload failed: " + err.message, "Error");
         }
     };
+    
     document.getElementById('logoutBtnProfile').onclick = async () => { if(heartbeatInterval) clearInterval(heartbeatInterval); if(unsubscribeNotifications) unsubscribeNotifications(); localStorage.removeItem('currentUserUid'); window.location.reload(); };
 }
 async function verifyIdentity() { await db.collection("users").doc(currentUser.uid).update({ verified: true }); await customAlert("Identity verified!", "Verified"); renderProfileUI(); }
